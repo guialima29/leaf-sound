@@ -4,7 +4,7 @@ import HomeText from "@/components/HomeText";
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-15">
+    <div className="flex flex-col gap-40">
       <Header/>
       <HomeText/>
       <HomeBeneficios/>

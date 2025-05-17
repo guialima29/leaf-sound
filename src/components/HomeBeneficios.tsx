@@ -30,7 +30,9 @@ export default function HomeBeneficios() {
     ]
 
     return(
-        <div className="grid grid-cols-2 gap-10 justify-center">
+        <div className="flex justify-center flex-col gap-20 mt-10 items-center">
+            <h1 className="font-bold text-4xl text-[#0E2E1F]">Benefícios do LeafSound</h1>
+        <div className="grid grid-cols-2 gap-15 justify-center max-w-5xl">
             {componentes.map((componente) => (
                 <CardBeneficio
                 key={componente.key}
@@ -38,6 +40,7 @@ export default function HomeBeneficios() {
                 description={componente.description}
                 imagem={componente.photo}/>
             ))}
+        </div>
         </div>
     )
 }

@@ -7,9 +7,9 @@ export default function CardBeneficio({key, title, description, imagem}:{
     imagem: string
 }) {
     return(
-        <div className="flex flex-row gap-2 align-middle">
+        <div className="flex flex-row gap-2 align-middle ">
             <Image src={imagem} alt={key} width={75} height={75}/>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold">{title}</h1>
                 <p>{description}</p>
             </div>
