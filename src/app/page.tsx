@@ -1,10 +1,13 @@
 import Header from "@/components/Header";
-import Navbutton from "@/components/NavButton";
+import HomeBeneficios from "@/components/HomeBeneficios";
+import HomeText from "@/components/HomeText";
 
 export default function Home() {
   return (
-    <div>
+    <div className="flex flex-col gap-15">
       <Header/>
+      <HomeText/>
+      <HomeBeneficios/>
     </div>
   );
 }
