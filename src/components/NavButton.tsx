@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
-import Link from "next/link";
 import Image from "next/image";
+import { componentesNavBar } from "@/constants/constNavBar";
 
 import { cn } from "@/lib/utils";
 import {
@@ -13,24 +13,6 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle
 } from "./ui/navigation-menu";
-
-const components: {title: string; description: string; href: string}[] = [
-    {
-        title: "Home",
-        href: "/",
-        description: "Página inicial."
-    },
-    {
-        title: "Sobre Nós",
-        href: "/about-us",
-        description: "Descubra o que é, como funciona, de onde e como surgiu o LeafSound."
-    },
-    {
-        title: "Feedback",
-        href: "/feedback",
-        description: "Nós gostariamos muito de saber em que podemos melhorar!"
-    },
-]
 
 export default function NavButton({title}:{title: string}) {
     return (
@@ -56,7 +38,7 @@ export default function NavButton({title}:{title: string}) {
                                     </a>
                                 </NavigationMenuLink>
                             </li>
-                            {components.map((component) => (
+                            {componentesNavBar.map((component) => (
                                 <ListItem
                                 key={component.title}
                                 title={component.title}
