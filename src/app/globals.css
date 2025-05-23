@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* @plugin "tailwindcss-animate"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -116,7 +117,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    max-width: 100%;
+    /* max-width: 100%; */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
