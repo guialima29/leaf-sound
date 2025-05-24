@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import HomeBeneficios from "@/components/HomeBeneficios";
+import HomeExemplo from "@/components/HomeExemplo";
 import HomeText from "@/components/HomeText";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
       <Header/>
       <HomeText/>
       <HomeBeneficios/>
+      <HomeExemplo/>
     </div>
   );
 }

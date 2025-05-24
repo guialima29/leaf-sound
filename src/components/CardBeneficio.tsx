@@ -7,13 +7,13 @@ export default function CardBeneficio({alt, title, description, imagem}:{
     imagem: string
 }) {
     return(
-        <div className="flex flex-row items-center gap-4">
-                <Image src={imagem} alt={alt} width={75} height={75}/>
-                <div className="flex flex-col ">
-                    <h1 className="text-[28px] font-bold w-70 ">{title}</h1>
-                    <p className="text-[18px]">{description}</p>
-                </div>    
-                {/* <p className="text-[18px]">{description}</p> */}
+        <div className="grid grid-cols-2 items-center">
+            <div className="bg-red-600 p-10"></div>
+            <div className="bg-blue-600 p-10"></div>
+            <div className="bg-green-600 p-10 col-span-full"></div>
+            {/* <Image className="" src={imagem} alt={alt} width={75} height={75}/> */}
+            {/* <h1 className=" text-start font-bold text-[28px]">{title}</h1> */}
+            {/* <p className="text-[18px] text-justify col-span-2 row-start-2">{description}</p> */}
         </div>
     )
 }
