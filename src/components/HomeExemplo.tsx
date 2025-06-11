@@ -5,7 +5,7 @@ export default function HomeExemplo() {
     return (
         // Container principal: usa flex para centralizar o conteúdo na tela
         <div className="flex items-center flex-col justify-center min-h-screen w-full">
-            <h1 className="font-bold text-4xl text-[#0E2E1F] mb-15">Explore a sua criatividade musical 🧠🎵</h1>
+            <h1 className="font-bold text-4xl text-[#2B3328] font-libre-caslon mb-15">Explore a sua criatividade musical 🧠🎵</h1>
             <div className="relative">
                 <div>
                      <Image src={"/home/song-bg.png"} alt="Background" width={1025} height={571} className="block max-w-full h-auto"/>

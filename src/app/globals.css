@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 /* @plugin "tailwindcss-animate"; */
 
+.font-libre-caslon {
+  font-family: var(--font-libre-caslon-text);
+}
+
+.font-poppins {
+  font-family: var(--font-poppins);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

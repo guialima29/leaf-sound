@@ -1,0 +1,59 @@
+AZUL
+
+tailwind.conf
+colors: {
+ 'text': 'var(--text)',
+ 'background': 'var(--background)',
+ 'primary': 'var(--primary)',
+ 'secondary': 'var(--secondary)',
+ 'accent': 'var(--accent)',
+},
+
+main.css
+@layer base {
+  :root {
+    --text: #0f1412;
+    --background: #ebf0ee;
+    --primary: #364a41;
+    --secondary: #98b9ab;
+    --accent: #578572;
+  }
+  .dark {
+    --text: #ebf0ee;
+    --background: #0f1412;
+    --primary: #b5c9c0;
+    --secondary: #466759;
+    --accent: #7aa895;
+  }
+},
+
+
+VERDE
+
+tailwind.conf
+colors: {
+ 'text': 'var(--text)',
+ 'background': 'var(--background)',
+ 'primary': 'var(--primary)',
+ 'secondary': 'var(--secondary)',
+ 'accent': 'var(--accent)',
+},
+
+
+main.css
+@layer base {
+  :root {
+    --text: #152112;
+    --background: #f3f8f1;
+    --primary: #356827;
+    --secondary: #9bda8b;
+    --accent: #4dbd2e;
+  }
+  .dark {
+    --text: #e1edde;
+    --background: #090e07;
+    --primary: #a5d897;
+    --secondary: #357425;
+    --accent: #61d142;
+  }
+},
