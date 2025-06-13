@@ -5,8 +5,8 @@ module.exports = {
     theme: {
         extend: {
             fontFamily: {
-                'libre-caslon': ['var(--font-libre-caslon-text)'],
-                'poppins': ['var(--font-poppins)'],
+                'libre-caslon': ['var(--font-libre-caslon-text)', 'serif'],
+                'poppins': ['var(--font-poppins)', 'sans-serif'],
             },
         },
     },

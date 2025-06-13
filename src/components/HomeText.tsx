@@ -11,7 +11,7 @@ export default function HomeText() {
                     <Image src={'/home/lf-logo-violao.png'} alt="LeafSound Logo Violão" width={60} height={105} />
                     <h3 className="text-xl">Desbloqueia a sua imaginação com um<br/>bloco de notas interativo para músicos,<br/>compositores e criativos.</h3>
                 </div>
-                <Button asChild className="bg-[#5DAA3B] hover:bg-[#43563B] hover:scale-105 font-bold w-45 h-13 text-xl text-center drop-shadow-lg/25">
+                <Button asChild className="bg-[#5DAA3B] hover:bg-[#43563B] hover:scale-105 font-[500] w-45 h-13 text-xl text-center drop-shadow-lg/25">
                     <Link href={'/login'}>Começar agora</Link>
                 </Button>
             </div>
