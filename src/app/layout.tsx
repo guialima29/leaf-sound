@@ -9,7 +9,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${libreCaslonText.variable}, ${poppins.variable}`}
+        className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
       >
         {children}
       </body>
