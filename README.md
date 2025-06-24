@@ -1,4 +1,4 @@
-# LeafSound
+# LeafSound (In Development)
 
 
 
@@ -43,6 +43,7 @@ LeafSound offers a range of essential functionalities for music management:
 *   **[RNF016] System Language:** The system must be developed with TypeScript, JavaScript, and Python, using the Next.js framework.
 
 
+### Prototype
 [Visual Prototype - Made in Figma](https://imgur.com/gallery/leafsound-prototype-Hw9VvON)
 
 
@@ -51,7 +52,7 @@ LeafSound offers a range of essential functionalities for music management:
 LeafSound is built with the following technologies:
 
 *   **Frontend:** TypeScript, JavaScript, Next.js, shadcn/ui
-*   **Backend:** Python
+*   **Backend:** Ruby
 *   **Database:** PostgreSQL
 
 
