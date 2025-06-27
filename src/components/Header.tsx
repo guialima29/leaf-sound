@@ -15,7 +15,7 @@ export default function Header() {
                     <Link href="/login">Login</Link>
                 </Button>
                 <Button asChild className="bg-[#5DAA3B] hover:bg-[#43563B] hover:scale-105 flex justify-self-end text-lg" style={{ width: "150px", height: "40px" }}>
-                    <Link href="/login">Registro</Link>
+                    <Link href="/register">Registro</Link>
                 </Button>
             </div>
         </div>
