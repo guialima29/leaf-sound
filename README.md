@@ -45,6 +45,7 @@ LeafSound offers a range of essential functionalities for music management:
 
 ### Prototype
 [Visual Prototype - Made in Figma](https://imgur.com/gallery/leafsound-prototype-Hw9VvON)
+[Software/Requirements Document - IFMS](https://github.com/guialima29/leaf-sound/blob/main/leaf-sound-docs.pdf)
 
 
 ## Technologies Used
@@ -52,7 +53,7 @@ LeafSound offers a range of essential functionalities for music management:
 LeafSound is built with the following technologies:
 
 *   **Frontend:** TypeScript, JavaScript, Next.js, shadcn/ui
-*   **Backend:** Ruby
+*   **Backend:** NodeJS
 *   **Database:** PostgreSQL
 
 
