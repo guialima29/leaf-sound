@@ -44,8 +44,9 @@ LeafSound offers a range of essential functionalities for music management:
 
 
 ### Prototype
-[Visual Prototype - Made in Figma](https://imgur.com/gallery/leafsound-prototype-Hw9VvON)
-[Software/Requirements Document - IFMS](https://github.com/guialima29/leaf-sound/blob/main/leaf-sound-docs.pdf)
+🖼️[Visual Prototype - Made in Figma](https://imgur.com/gallery/leafsound-prototype-Hw9VvON)
+</br>
+📄[Software/Requirements Document - IFMS](https://github.com/guialima29/leaf-sound/blob/main/leaf-sound-docs.pdf)
 
 
 ## Technologies Used
