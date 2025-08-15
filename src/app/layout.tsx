@@ -8,6 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>LSound</title>
       <body
         className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
       >
