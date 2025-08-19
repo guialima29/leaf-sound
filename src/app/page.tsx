@@ -10,7 +10,7 @@ export default function Home() {
     <div className="flex flex-col gap-35 w-full">
       <Header/>
       <HomeText/>
-      <VideoComponent/>
+      <VideoComponent />
       <HomeBeneficios/>
       <HomeExemplo/>
       <Footer/>

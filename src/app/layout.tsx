@@ -1,6 +1,11 @@
 import { libreCaslonText, poppins } from "@/fonts/fonts";
 import "./globals.css";
 
+export const metadata = {
+  title: "LeafSound",
+  description: "A platform for music enthusiasts to connect and share their passion.",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -8,11 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <title>LSound</title>
       <body
         className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
       >
-        {children}
+          {children}
       </body>
     </html>
   );
