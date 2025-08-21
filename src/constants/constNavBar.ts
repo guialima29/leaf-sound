@@ -1,8 +1,8 @@
 export const componentesNavBar: {title: string; description: string; href: string}[] = [
     {
-        title: "Home",
-        href: "/",
-        description: "Página inicial."
+        title: "Como funciona",
+        href: "/what-is-leafsound",
+        description: "Entenda o que é o nosso serviço e como ele funciona."
     },
     {
         title: "Sobre Nós",
