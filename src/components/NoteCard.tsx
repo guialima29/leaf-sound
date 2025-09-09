@@ -11,14 +11,16 @@ import Image from "next/image"
 import Link from "next/link";
 import { Button } from "./ui/button"
 
-interface ComponentNote {
+interface NoteCardProps {
     title: string;
     description: string;
     lastUpdateDate: string;
     lastUpdateTime: string;
+    href: string;
+    idx: number;
 }
 
-export default function NoteCard(title: string, description: string, lastUpdateDate: string, lastUpdateTime:string, href: string, idx: number) {
+export default function NoteCard({title,description,lastUpdateDate,lastUpdateTime,href,idx}: NoteCardProps) {
     return (
                 <Card className="w-[300px] h-[360px] relative" key={idx}>
                     <CardHeader>
@@ -29,7 +31,7 @@ export default function NoteCard(title: string, description: string, lastUpdateD
                         <p className="max-w-[300px] max-h-[75px] line-clamp-3">{description}</p>
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-3 w-full absolute bottom-2 justify-center items-center ">
-                        <Link href={href}>
+                        <Link href={href} className="w-full">
                             <Button className="w-full">Acessar</Button>
                         </Link>
                         <p className="text-[14px] ">Last update: {lastUpdateDate} at {lastUpdateTime}</p>    
@@ -38,4 +40,3 @@ export default function NoteCard(title: string, description: string, lastUpdateD
     )
 }
 
-// title, description, content, footer
