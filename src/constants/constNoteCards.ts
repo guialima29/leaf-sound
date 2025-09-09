@@ -1,5 +1,5 @@
 export const componentsNotes: {id: string; title:string; description: string, lastUpdateDate: string, lastUpdateTime: string, href: string}[] = [
-    {id: "pop-chords", title: "Pop Chords", description: "Common pop chord progressions", lastUpdateDate: "18/08/2025", lastUpdateTime: "14:30", href: "/editor/pop-chords"},
+    {id: "pop-chords", title: "Pop Chords", description: "Common pop chord progressions to make a new songs. I'm using a three chords to create", lastUpdateDate: "18/08/2025", lastUpdateTime: "14:30", href: "/editor/pop-chords"},
     {id: "metallica-megadeth", title: "Metallica x Megadeth", description: "Riff & solo comparison", lastUpdateDate: "15/06/2025", lastUpdateTime: "19:32", href: "/editor/metallica-megadeth"},
     {id: "positions-tim", title: "Positions Tim Version", description: "Positions with tempo adjustments", lastUpdateDate: "30/05/2025", lastUpdateTime: "18:13", href: "/editor/positions-tim"},
     {id: "tfaf-study", title: "TFAF", description: "Through Fire & Flames guitar study", lastUpdateDate: "12/07/2025", lastUpdateTime: "09:42", href: "/editor/tfaf-study"},
