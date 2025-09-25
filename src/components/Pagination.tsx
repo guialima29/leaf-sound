@@ -7,6 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import NoteCard from "./NoteCard"
 
 export default function PaginationDemo() {
   return (
