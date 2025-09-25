@@ -16,7 +16,7 @@ export default function LoginArea() {
                     <Link href="/workspace">Login com o Google</Link>
                 </button>
             </div>
-            <p className="fixed bottom-0 mb-10">*Caso for seu primeiro acesso, será criado automaticamente uma nova conta!*</p>
+            <p className="fixed bottom-0 mb-10">*Caso for seu primeiro acesso, será criado automaticamente uma nova conta*</p>
         </div>
     )
 }
