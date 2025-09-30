@@ -1,4 +1,5 @@
 import { libreCaslonText, poppins } from "@/fonts/fonts";
+import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
 export const metadata = {
@@ -11,13 +12,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
-      >
-          {children}
-      </body>
-    </html>
-  );
+	return (
+    	<html lang="pt-br">
+      		<body
+        	className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
+      		>
+				<QueryProvider>
+					{children}
+				</QueryProvider>
+      		</body>
+    	</html>
+  	);
 }
