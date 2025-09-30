@@ -7,7 +7,7 @@ export default function WorkspaceMenu() {
         <>
             <TitleWithBar title="User's Workspace"/>
             <div className="flex flex-col justify-center items-center">
-                <GridWorkspace/>
+                {/* <GridWorkspace/> */}
                 <PaginationDemo />
             </div>
         </>
