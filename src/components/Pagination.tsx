@@ -1,4 +1,6 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -7,23 +9,50 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import response from '@/constants/notesDemo.json'
-import NoteCard from "./NoteCard"
-import { useState } from "react"
+} from "@/components/ui/pagination";
+import response from '@/constants/notesDemo.json';
+import NoteCard from "./NoteCard";
+import Spinner from "./Spinner";
 
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 10;
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['notes'],
+    queryFn: async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      return response.data
+    }
+  })
+
 	const index_inicial = (currentPage - 1) * itemsPerPage;
 	const index_final = index_inicial + (itemsPerPage - 1);
 
-	const notasAtual = response.data.slice(index_inicial, index_final);
+	const notasAtual = data?.slice(index_inicial, index_final) || [];
 
-	const totalPages = Math.ceil(response.data.length / itemsPerPage);
+	const totalPages = data ? Math.ceil(data.length / itemsPerPage) : 0;
 
-	return (
+	if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
+        <p>Carregando notas...</p>
+        <Spinner/>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
+        <p className="text-red-500">Erro ao carregar as notas!</p>
+      </div>
+    )
+  }
+  
+  return (
 		<div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
       
