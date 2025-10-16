@@ -16,7 +16,7 @@ import Spinner from "./Spinner";
 
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);
-	const itemsPerPage = 10;
+	const itemsPerPage = 13;
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notes'],
@@ -57,7 +57,7 @@ export default function PaginationDemo() {
       <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
       
       {/* Grid de cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {notasAtual.map((note, index) => (
           <NoteCard
             key={note.id}
