@@ -14,7 +14,7 @@ const DynamicVideoPlayer = dynamic(() => Promise.resolve(VideoPlayer), {
 });
 
 function VideoPlayer() {
-  const src = "https://www.youtube.com/embed/T3sax7PB0vw?si=eGeFo0EE2J3aIPrQ";
+  const src = "https://www.youtube-nocookie.com/embed/T3sax7PB0vw?si=eGeFo0EE2J3aIPrQ";
   
   return ( 
     <div className="flex justify-center items-center w-full">
@@ -25,6 +25,8 @@ function VideoPlayer() {
           title="Apresentation Video" 
           allowFullScreen 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          referrerPolicy="no-referrer-when-downgrade"
+          loading='lazy'
         />
       </div>
     </div>
