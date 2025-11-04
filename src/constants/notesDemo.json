@@ -400,6 +400,406 @@
             "lastUpdateDate": "25/08/2025",
             "lastUpdateTime": "21:59",
             "href": "/editor/random-melody"
+        },
+        {
+            "id": "pop-chords",
+            "title": "Pop Chords",
+            "description": "Common pop chord progressions to make a new songs. I'm using a three chords to create",
+            "lastUpdateDate": "18/08/2025",
+            "lastUpdateTime": "14:30",
+            "href": "/editor/pop-chords"
+        },
+        {
+            "id": "metallica-megadeth",
+            "title": "Metallica x Megadeth",
+            "description": "Riff & solo comparison",
+            "lastUpdateDate": "15/06/2025",
+            "lastUpdateTime": "19:32",
+            "href": "/editor/metallica-megadeth"
+        },
+        {
+            "id": "positions-tim",
+            "title": "Positions Tim Version",
+            "description": "Positions with tempo adjustments",
+            "lastUpdateDate": "30/05/2025",
+            "lastUpdateTime": "18:13",
+            "href": "/editor/positions-tim"
+        },
+        {
+            "id": "tfaf-study",
+            "title": "TFAF",
+            "description": "Through Fire & Flames guitar study",
+            "lastUpdateDate": "12/07/2025",
+            "lastUpdateTime": "09:42",
+            "href": "/editor/tfaf-study"
+        },
+        {
+            "id": "note-1",
+            "title": "Note 1",
+            "description": "First experimental composition",
+            "lastUpdateDate": "24/04/2025",
+            "lastUpdateTime": "23:22",
+            "href": "/editor/note-1"
+        },
+        {
+            "id": "jazz-harmony",
+            "title": "Jazz Harmony",
+            "description": "Jazz harmonic substitutions",
+            "lastUpdateDate": "10/05/2025",
+            "lastUpdateTime": "16:11",
+            "href": "/editor/jazz-harmony"
+        },
+        {
+            "id": "funk-groove",
+            "title": "Funk Groove",
+            "description": "70s funk rhythmic patterns",
+            "lastUpdateDate": "08/06/2025",
+            "lastUpdateTime": "20:55",
+            "href": "/editor/funk-groove"
+        },
+        {
+            "id": "acoustic-ballad",
+            "title": "Acoustic Ballad",
+            "description": "Romantic acoustic ballad structure",
+            "lastUpdateDate": "02/07/2025",
+            "lastUpdateTime": "13:45",
+            "href": "/editor/acoustic-ballad"
+        },
+        {
+            "id": "lofi-beat",
+            "title": "Lo-Fi Beat",
+            "description": "Smooth chords for lo-fi beats",
+            "lastUpdateDate": "19/03/2025",
+            "lastUpdateTime": "11:22",
+            "href": "/editor/lofi-beat"
+        },
+        {
+            "id": "epic-orchestration",
+            "title": "Epic Orchestration",
+            "description": "Orchestral epic soundtrack draft",
+            "lastUpdateDate": "22/08/2025",
+            "lastUpdateTime": "21:05",
+            "href": "/editor/epic-orchestration"
+        },
+        {
+            "id": "blues-riffs",
+            "title": "Blues Riffs",
+            "description": "Classic blues riff sequence",
+            "lastUpdateDate": "14/04/2025",
+            "lastUpdateTime": "09:37",
+            "href": "/editor/blues-riffs"
+        },
+        {
+            "id": "chill-vibes",
+            "title": "Chill Vibes",
+            "description": "Relaxing electronic music ideas",
+            "lastUpdateDate": "06/06/2025",
+            "lastUpdateTime": "17:59",
+            "href": "/editor/chill-vibes"
+        },
+        {
+            "id": "latin-rhythms",
+            "title": "Latin Rhythms",
+            "description": "Latin guitar rhythm study",
+            "lastUpdateDate": "25/05/2025",
+            "lastUpdateTime": "12:18",
+            "href": "/editor/latin-rhythms"
+        },
+        {
+            "id": "synthwave-project",
+            "title": "Synthwave Project",
+            "description": "Retro synthwave music draft",
+            "lastUpdateDate": "13/07/2025",
+            "lastUpdateTime": "18:03",
+            "href": "/editor/synthwave-project"
+        },
+        {
+            "id": "folk-song",
+            "title": "Folk Song",
+            "description": "Simple folk song lyrics & harmony",
+            "lastUpdateDate": "30/06/2025",
+            "lastUpdateTime": "22:44",
+            "href": "/editor/folk-song"
+        },
+        {
+            "id": "study-routine",
+            "title": "Study Routine",
+            "description": "Weekly music study plan",
+            "lastUpdateDate": "09/05/2025",
+            "lastUpdateTime": "15:20",
+            "href": "/editor/study-routine"
+        },
+        {
+            "id": "classic-rock",
+            "title": "Classic Rock",
+            "description": "Classic rock chord progressions",
+            "lastUpdateDate": "27/07/2025",
+            "lastUpdateTime": "10:51",
+            "href": "/editor/classic-rock"
+        },
+        {
+            "id": "indie-mood",
+            "title": "Indie Mood",
+            "description": "Alternative indie-style song draft",
+            "lastUpdateDate": "03/06/2025",
+            "lastUpdateTime": "14:02",
+            "href": "/editor/indie-mood"
+        },
+        {
+            "id": "hip-hop-flow",
+            "title": "Hip Hop Flow",
+            "description": "Rap & hip hop rhythmic patterns",
+            "lastUpdateDate": "12/05/2025",
+            "lastUpdateTime": "20:16",
+            "href": "/editor/hip-hop-flow"
+        },
+        {
+            "id": "electronic-drop",
+            "title": "Electronic Drop",
+            "description": "Electronic drop building ideas",
+            "lastUpdateDate": "04/08/2025",
+            "lastUpdateTime": "23:41",
+            "href": "/editor/electronic-drop"
+        },
+        {
+            "id": "piano-study",
+            "title": "Piano Study",
+            "description": "Piano arpeggio exercises",
+            "lastUpdateDate": "18/06/2025",
+            "lastUpdateTime": "07:58",
+            "href": "/editor/piano-study"
+        },
+        {
+            "id": "vocal-warmups",
+            "title": "Vocal Warmups",
+            "description": "Daily vocal warm-up sequence",
+            "lastUpdateDate": "11/07/2025",
+            "lastUpdateTime": "08:27",
+            "href": "/editor/vocal-warmups"
+        },
+        {
+            "id": "basslines",
+            "title": "Basslines",
+            "description": "Funky & rock-inspired bass lines",
+            "lastUpdateDate": "21/05/2025",
+            "lastUpdateTime": "19:14",
+            "href": "/editor/basslines"
+        },
+        {
+            "id": "drum-patterns",
+            "title": "Drum Patterns",
+            "description": "Common drum groove examples",
+            "lastUpdateDate": "05/07/2025",
+            "lastUpdateTime": "17:39",
+            "href": "/editor/drum-patterns"
+        },
+        {
+            "id": "scale-practice",
+            "title": "Scale Practice",
+            "description": "Major & minor scale study",
+            "lastUpdateDate": "29/04/2025",
+            "lastUpdateTime": "13:10",
+            "href": "/editor/scale-practice"
+        },
+        {
+            "id": "ambient-sounds",
+            "title": "Ambient Sounds",
+            "description": "Sound textures for relaxing tracks",
+            "lastUpdateDate": "16/05/2025",
+            "lastUpdateTime": "11:54",
+            "href": "/editor/ambient-sounds"
+        },
+        {
+            "id": "game-ost",
+            "title": "Game OST",
+            "description": "Indie game soundtrack draft",
+            "lastUpdateDate": "01/06/2025",
+            "lastUpdateTime": "21:33",
+            "href": "/editor/game-ost"
+        },
+        {
+            "id": "cinematic-build",
+            "title": "Cinematic Build",
+            "description": "Rising cinematic track structure",
+            "lastUpdateDate": "23/06/2025",
+            "lastUpdateTime": "19:29",
+            "href": "/editor/cinematic-build"
+        },
+        {
+            "id": "edm-melody",
+            "title": "EDM Melody",
+            "description": "Energetic electronic melody",
+            "lastUpdateDate": "07/07/2025",
+            "lastUpdateTime": "20:47",
+            "href": "/editor/edm-melody"
+        },
+        {
+            "id": "trap-beat",
+            "title": "Trap Beat",
+            "description": "Hi-hats & 808s construction",
+            "lastUpdateDate": "19/04/2025",
+            "lastUpdateTime": "18:15",
+            "href": "/editor/trap-beat"
+        },
+        {
+            "id": "soul-progressions",
+            "title": "Soul Progressions",
+            "description": "Emotional chord progressions",
+            "lastUpdateDate": "17/08/2025",
+            "lastUpdateTime": "09:26",
+            "href": "/editor/soul-progressions"
+        },
+        {
+            "id": "chorus-ideas",
+            "title": "Chorus Ideas",
+            "description": "Alternative choruses for songs",
+            "lastUpdateDate": "28/07/2025",
+            "lastUpdateTime": "12:51",
+            "href": "/editor/chorus-ideas"
+        },
+        {
+            "id": "bridge-draft",
+            "title": "Bridge Draft",
+            "description": "Possible bridges for unfinished songs",
+            "lastUpdateDate": "20/06/2025",
+            "lastUpdateTime": "14:38",
+            "href": "/editor/bridge-draft"
+        },
+        {
+            "id": "outro-concepts",
+            "title": "Outro Concepts",
+            "description": "Creative song endings",
+            "lastUpdateDate": "15/05/2025",
+            "lastUpdateTime": "22:09",
+            "href": "/editor/outro-concepts"
+        },
+        {
+            "id": "lyrics-pack",
+            "title": "Lyrics Pack",
+            "description": "Verses without melody yet",
+            "lastUpdateDate": "09/04/2025",
+            "lastUpdateTime": "16:42",
+            "href": "/editor/lyrics-pack"
+        },
+        {
+            "id": "chord-inversions",
+            "title": "Chord Inversions",
+            "description": "Chord inversion study",
+            "lastUpdateDate": "08/06/2025",
+            "lastUpdateTime": "19:13",
+            "href": "/editor/chord-inversions"
+        },
+        {
+            "id": "riff-bank",
+            "title": "Riff Bank",
+            "description": "Short riffs for future songs",
+            "lastUpdateDate": "22/05/2025",
+            "lastUpdateTime": "11:08",
+            "href": "/editor/riff-bank"
+        },
+        {
+            "id": "fingerstyle",
+            "title": "Fingerstyle",
+            "description": "Fingerpicking guitar exercises",
+            "lastUpdateDate": "03/07/2025",
+            "lastUpdateTime": "13:36",
+            "href": "/editor/fingerstyle"
+        },
+        {
+            "id": "strumming-patterns",
+            "title": "Strumming Patterns",
+            "description": "Common guitar strumming rhythms",
+            "lastUpdateDate": "27/06/2025",
+            "lastUpdateTime": "20:57",
+            "href": "/editor/strumming-patterns"
+        },
+        {
+            "id": "improvisation",
+            "title": "Improvisation",
+            "description": "Minor scale improvisation techniques",
+            "lastUpdateDate": "02/08/2025",
+            "lastUpdateTime": "15:19",
+            "href": "/editor/improvisation"
+        },
+        {
+            "id": "mix-notes",
+            "title": "Mix Notes",
+            "description": "EQ & compression adjustments",
+            "lastUpdateDate": "05/05/2025",
+            "lastUpdateTime": "18:23",
+            "href": "/editor/mix-notes"
+        },
+        {
+            "id": "mastering-chain",
+            "title": "Mastering Chain",
+            "description": "Track mastering effect chain",
+            "lastUpdateDate": "31/07/2025",
+            "lastUpdateTime": "22:12",
+            "href": "/editor/mastering-chain"
+        },
+        {
+            "id": "studio-setup",
+            "title": "Studio Setup",
+            "description": "Cable & equipment configuration",
+            "lastUpdateDate": "12/08/2025",
+            "lastUpdateTime": "09:55",
+            "href": "/editor/studio-setup"
+        },
+        {
+            "id": "recording-test",
+            "title": "Recording Test",
+            "description": "Microphone recording setup tests",
+            "lastUpdateDate": "26/06/2025",
+            "lastUpdateTime": "16:40",
+            "href": "/editor/recording-test"
+        },
+        {
+            "id": "live-set",
+            "title": "Live Set",
+            "description": "Live performance setlist draft",
+            "lastUpdateDate": "14/07/2025",
+            "lastUpdateTime": "19:28",
+            "href": "/editor/live-set"
+        },
+        {
+            "id": "collab-ideas",
+            "title": "Collab Ideas",
+            "description": "Collaboration track suggestions",
+            "lastUpdateDate": "07/05/2025",
+            "lastUpdateTime": "14:21",
+            "href": "/editor/collab-ideas"
+        },
+        {
+            "id": "cover-notes",
+            "title": "Cover Notes",
+            "description": "Planned cover song notes",
+            "lastUpdateDate": "11/06/2025",
+            "lastUpdateTime": "10:48",
+            "href": "/editor/cover-notes"
+        },
+        {
+            "id": "rehearsal-plan",
+            "title": "Rehearsal Plan",
+            "description": "Weekly rehearsal organization",
+            "lastUpdateDate": "19/07/2025",
+            "lastUpdateTime": "13:32",
+            "href": "/editor/rehearsal-plan"
+        },
+        {
+            "id": "setlist-draft",
+            "title": "Setlist Draft",
+            "description": "Initial show song list",
+            "lastUpdateDate": "02/05/2025",
+            "lastUpdateTime": "17:07",
+            "href": "/editor/setlist-draft"
+        },
+        {
+            "id": "random-melody",
+            "title": "Random Melody",
+            "description": "Improvised melody idea",
+            "lastUpdateDate": "25/08/2025",
+            "lastUpdateTime": "21:59",
+            "href": "/editor/random-melody"
         }
     ]
 }
