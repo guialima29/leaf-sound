@@ -1,0 +1,27 @@
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "./ui/button"
+
+export default function CreateNoteCard() {
+    return (
+        <Card className="w-[300px] h-[360px] relative">
+            {/* <CardHeader>
+            </CardHeader> */}
+            <CardContent className="space-y-2">
+                <Image src="/note-img.png" alt="" width={300} height={200} />
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-3 w-full absolute bottom-10 justify-center items-center ">
+                <CardTitle className="font-semibold line-clamp-1 text-center text-[24px]">Nova Anotação</CardTitle>
+            </CardFooter>
+        </Card>
+    )
+}
