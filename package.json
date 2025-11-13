@@ -14,8 +14,9 @@
     "@editorjs/header": "^2.8.8",
     "@editorjs/list": "^2.0.8",
     "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-navigation-menu": "^1.2.13",
-    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-slot": "^1.2.4",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/react-query": "^5.90.2",
     "class-variance-authority": "^0.7.1",
@@ -24,6 +25,7 @@
     "next": "^15.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-textarea-autosize": "^8.5.9",
     "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
