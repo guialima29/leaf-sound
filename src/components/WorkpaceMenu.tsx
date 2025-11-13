@@ -1,4 +1,4 @@
-import CreateNoteCard from "./CreateNoteCard";
+import CreateNoteCard from "./CardCreateNote";
 import TitleWithBar from "./TitleWithBar";
 import PaginationDemo from "@/components/Pagination";
 
