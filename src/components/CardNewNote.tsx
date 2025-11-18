@@ -21,6 +21,16 @@ interface CardNewNoteProp {
 }
 
 export function CardNewNote({ onClick }: CardNewNoteProp) {
+    const [inputValue, setInputValue] = useState("");
+    const MAX_TITLE = 30;
+    const MAX_DESCRIPTION = 100;
+
+    const handleChangeTitle = (event) => {
+        const value = event.target.value;
+        if (value.length > MAX_TITLE) {
+            setInputValue(value); // .slice(0, MAX_TITLE)
+    }
+
     return (
         <Card className="w-full max-w-sm ">
             <CardHeader className="flex flex-row items-start justify-between">
@@ -44,8 +54,10 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
                                 id="nome-nota"
                                 type="text"
                                 required
-                                maxLength={30}
+                                onChange={handleChange}
+                                maxLength={MAX_TITLE}
                             />
+                            {inputValue.length}/{MAX_TITLE}
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center">
@@ -56,7 +68,7 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
                                     data-slot="input-description-control"
                                     className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
                                     placeholder="Breve descrição..."
-                                    maxLength={100}
+                                    maxLength={MAX_DESCRIPTION}
                                 />
                             </InputGroup>
                             {/* <Input id="descricao" type="text" maxLength={100} className="h-20" /> */}
