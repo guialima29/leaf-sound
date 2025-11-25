@@ -15,21 +15,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import TextareaAutosize from "react-textarea-autosize"
+import Link from "next/link"
 
 interface CardNewNoteProp {
     onClick: () => void;
+
 }
 
 export function CardNewNote({ onClick }: CardNewNoteProp) {
-    const [inputValue, setInputValue] = useState("");
     const MAX_TITLE = 30;
     const MAX_DESCRIPTION = 100;
-
-    const handleChangeTitle = (event) => {
-        const value = event.target.value;
-        if (value.length > MAX_TITLE) {
-            setInputValue(value); // .slice(0, MAX_TITLE)
-    }
 
     return (
         <Card className="w-full max-w-sm ">
@@ -54,10 +49,7 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
                                 id="nome-nota"
                                 type="text"
                                 required
-                                onChange={handleChange}
-                                maxLength={MAX_TITLE}
                             />
-                            {inputValue.length}/{MAX_TITLE}
                         </div>
                         <div className="grid gap-2">
                             <div className="flex items-center">
@@ -74,13 +66,13 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
                             {/* <Input id="descricao" type="text" maxLength={100} className="h-20" /> */}
                         </div>
                     </div>
+                    <div className="flex-col gap-1 mt-5" >
+                        <Button type="submit" className="w-full" asChild>
+                            <Link href="/editor" >Criar</Link>
+                        </Button>
+                    </div>
                 </form>
             </CardContent>
-            <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full">
-                    Criar
-                </Button>
-            </CardFooter>
         </Card>
     )
 }
