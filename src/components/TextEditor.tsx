@@ -1,68 +1,82 @@
 "use client"
 
-import { useEffect, useRef } from "react";
-import EditorJS from "@editorjs/editorjs";
-import Header from '@editorjs/header';
-import List from '@editorjs/list';
-import Code from '@editorjs/code';
-import Paragraph from '@editorjs/paragraph';
+import { useEffect, useRef, useState } from "react"
+import type { OutputData } from "@editorjs/editorjs"
+import "@/app/editor/editor-styles.css"
 
 interface NoteEditorProps {
-    initialData?: any
-    onChange?: (data: any) => void
+    initialData?: OutputData
+    onChange?: (data: OutputData) => void
 }
 
-export function TextEditor({ initialData, onChange }: NoteEditorProps) {
-    const editorRef = useRef<EditorJS | null>(null);
+export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
+    const editorRef = useRef<any>(null)
+    const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
-        if (!editorRef.current) {
-            const editor = new EditorJS({
-                holder: 'editor',
-                tools: {
-                    header: {
-                        class: Header,
-                        inlineToolbar: true,
-                        config: {
-                            placeholder: "Digite um título...",
-                            levels: [1, 2, 3, 4, 5, 6],
-                            defaultLevel: 1
+        setIsMounted(true)
+    }, [])
+
+    useEffect(() => {
+        if (!isMounted) return
+
+        // Importação dinâmica - só carrega no cliente
+        const initEditor = async () => {
+            const EditorJS = (await import("@editorjs/editorjs")).default
+            const Header = (await import("@editorjs/header")).default
+            const List = (await import("@editorjs/list")).default
+            const Code = (await import("@editorjs/code")).default
+            const Paragraph = (await import("@editorjs/paragraph")).default
+
+            if (!editorRef.current) {
+                const editor = new EditorJS({
+                    holder: "editorjs",
+
+                    tools: {
+                        header: {
+                            // @ts-ignore
+                            class: Header,
+                            inlineToolbar: true,
+                            config: {
+                                placeholder: "Digite um título...",
+                                levels: [2],
+                                defaultLevel: 2
+                            }
+                        },
+                        paragraph: {
+                            // @ts-ignore
+                            class: Paragraph,
+                            inlineToolbar: true,
+                            config: {
+                                placeholder: "Digite seu texto..."
+                            }
+                        },
+                        list: {
+                            class: List,
+                            inlineToolbar: true,
+                        },
+                        code: {
+                            class: Code,
                         }
                     },
-                    list: {
-                        class: List,
-                        inlineToolbar: true,
-                    },
-                    code: {
-                        class: Code,
-                        inlineToolbar: true,
-                        config: {
-                            placeholder: "print('Hello World')"
+
+                    data: initialData,
+
+                    onChange: async () => {
+                        if (onChange && editorRef.current) {
+                            const data = await editorRef.current.save()
+                            onChange(data)
                         }
                     },
-                    paragraph: {
-                        class: Paragraph,
-                        inlineToolbar: true,
-                        config: {
-                            placeholder: "Digite seu texto..."
-                        }
-                    }
-                },
 
-                data: initialData,
+                    placeholder: "Comece a escrever sua nota..."
+                })
 
-                onChange: async () => {
-                    if (onChange && editorRef.current) {
-                        const data = await editorRef.current.save()
-                        onChange(data)
-                    }
-                },
-
-                placeholder: "Comece a escrever sua nota..."
-            })
-
-            editorRef.current = editor
+                editorRef.current = editor
+            }
         }
+
+        initEditor()
 
         return () => {
             if (editorRef.current && editorRef.current.destroy) {
@@ -70,13 +84,25 @@ export function TextEditor({ initialData, onChange }: NoteEditorProps) {
                 editorRef.current = null
             }
         }
+    }, [isMounted, initialData, onChange])
 
-    }, [])
+    if (!isMounted) {
+        return <div className="w-full max-w-4xl mx-auto min-h-[500px] border rounded-lg p-6">
+            Carregando editor...
+        </div>
+    }
+
     return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-6xl mx-auto">
             <div
                 id="editorjs"
-                className="prose prose-lg max-w-none min-h-[500px] border rounded-lg p-6"
+                className="min-h-[500px] border rounded-lg p-6 overflow-hidden
+                   prose prose-slate prose-lg max-w-none
+                   prose-headings:font-bold
+                   prose-h1:text-4xl prose-h1:mb-4
+                   prose-h2:text-3xl prose-h2:mb-3
+                   prose-h3:text-2xl prose-h3:mb-2
+                   prose-p:text-base prose-p:leading-7"
             />
         </div>
     )
