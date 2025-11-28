@@ -1,26 +1,27 @@
 import { libreCaslonText, poppins } from "@/fonts/fonts";
 import { QueryProvider } from "@/providers/query-provider";
+import "@/app/editor/editor-styles.css"
 import "./globals.css";
 
 export const metadata = {
-  title: "LeafSound",
-  description: "A platform for music enthusiasts to connect and share their passion.",
+	title: "LeafSound",
+	description: "A platform for music enthusiasts to connect and share their passion.",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
 	return (
-    	<html lang="pt-br">
-      		<body
-        	className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
-      		>
+		<html lang="pt-br" suppressHydrationWarning>
+			<body suppressHydrationWarning
+				className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
+			>
 				<QueryProvider>
 					{children}
 				</QueryProvider>
-      		</body>
-    	</html>
-  	);
+			</body>
+		</html>
+	);
 }
