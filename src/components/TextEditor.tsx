@@ -13,14 +13,19 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
     const editorRef = useRef<any>(null)
     const [isMounted, setIsMounted] = useState(false)
 
+    const onChangeRef = useRef(onChange);
+
     useEffect(() => {
         setIsMounted(true)
     }, [])
 
     useEffect(() => {
+        onChangeRef.current = onChange
+    }, [onChange])
+
+    useEffect(() => {
         if (!isMounted) return
 
-        // Importação dinâmica - só carrega no cliente
         const initEditor = async () => {
             const EditorJS = (await import("@editorjs/editorjs")).default
             const Header = (await import("@editorjs/header")).default
@@ -31,7 +36,6 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
             if (!editorRef.current) {
                 const editor = new EditorJS({
                     holder: "editorjs",
-
                     tools: {
                         header: {
                             // @ts-ignore
@@ -59,19 +63,15 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                             class: Code,
                         }
                     },
-
                     data: initialData,
-
                     onChange: async () => {
-                        if (onChange && editorRef.current) {
+                        if (onChangeRef.current && editorRef.current) {
                             const data = await editorRef.current.save()
-                            onChange(data)
+                            onChangeRef.current(data)
                         }
                     },
-
                     placeholder: "Comece a escrever sua nota..."
                 })
-
                 editorRef.current = editor
             }
         }
@@ -84,12 +84,14 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                 editorRef.current = null
             }
         }
-    }, [isMounted, initialData, onChange])
+    }, [isMounted])
 
     if (!isMounted) {
-        return <div className="w-full max-w-4xl mx-auto min-h-[500px] border rounded-lg p-6">
-            Carregando editor...
-        </div>
+        return (
+            <div className="w-full max-w-4xl mx-auto min-h-[500px] border rounded-lg p-6">
+                Carregando editor...
+            </div>
+        )
     }
 
     return (
