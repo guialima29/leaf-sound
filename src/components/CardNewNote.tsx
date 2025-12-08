@@ -3,28 +3,39 @@ import {
     Card,
     CardAction,
     CardContent,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import {
     InputGroup,
-    InputGroupAddon,
-    InputGroupButton,
 } from "@/components/ui/input-group"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import TextareaAutosize from "react-textarea-autosize"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { storage } from "@/lib/storage"
+import { X } from "lucide-react"
 
 interface CardNewNoteProp {
     onClick: () => void;
-
 }
 
 export function CardNewNote({ onClick }: CardNewNoteProp) {
     const MAX_TITLE = 30;
     const MAX_DESCRIPTION = 100;
+    const router = useRouter();
+
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!title) return;
+
+        const newNote = storage.createNote(title, description);
+        router.push(`/editor?id=${newNote.id}`);
+    }
 
     return (
         <Card className="w-full max-w-sm ">
@@ -34,41 +45,30 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
                     <Button
                         onClick={onClick}
                         variant="link"
-                        className="p-0 text-sm text-black hover:text-gray-800"
+                        className="bg-black text-white w-7 h-7 hover:scale-110 transition-all"
                     >
-                        Exit
+                        <X className="w-4 h-4 rounded-full stroke-4" />
                     </Button>
                 </CardAction>
             </CardHeader>
             <CardContent>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="flex flex-col gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Nome</Label>
+                            <Label htmlFor="nome-nota">Nome</Label>
                             <Input
                                 id="nome-nota"
                                 type="text"
                                 required
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                maxLength={MAX_TITLE}
                             />
-                        </div>
-                        <div className="grid gap-2">
-                            <div className="flex items-center">
-                                <Label htmlFor="password">Descrição</Label>
-                            </div>
-                            <InputGroup>
-                                <TextareaAutosize
-                                    data-slot="input-description-control"
-                                    className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base transition-[color,box-shadow] outline-none md:text-sm"
-                                    placeholder="Breve descrição..."
-                                    maxLength={MAX_DESCRIPTION}
-                                />
-                            </InputGroup>
-                            {/* <Input id="descricao" type="text" maxLength={100} className="h-20" /> */}
                         </div>
                     </div>
                     <div className="flex-col gap-1 mt-5" >
-                        <Button type="submit" className="w-full" asChild>
-                            <Link href="/editor" >Criar</Link>
+                        <Button type="submit" className="w-full">
+                            Criar
                         </Button>
                     </div>
                 </form>
