@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Pagination,
 	PaginationContent,
@@ -10,7 +10,7 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
-import response from '@/constants/notesDemo.json';
+import { storage } from "@/lib/storage";
 import NoteCard from "./NoteCard";
 import Spinner from "./Spinner";
 import NotesPagination from "./NotesPagination";
@@ -20,15 +20,21 @@ import { CardNewNote } from "./CardNewNote";
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const itemsPerPage = 13;
+	const itemsPerPage = 12;
 
-	const { data, isLoading, isError } = useQuery({
+	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['notes'],
 		queryFn: async () => {
-			await new Promise(resolve => setTimeout(resolve, 2000))
-			return response.data
+			const notes = storage.getNotes();
+			return notes.sort((a, b) => b.updatedAt - a.updatedAt);
 		}
 	})
+
+	useEffect(() => {
+		if (!isModalOpen) {
+			refetch();
+		}
+	}, [isModalOpen, refetch]);
 
 	const index_inicial = (currentPage - 1) * itemsPerPage;
 	const index_final = index_inicial + (itemsPerPage - 1);
@@ -85,7 +91,7 @@ export default function PaginationDemo() {
 
 			{isModalOpen && (
 				<div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50">
-					<CardNewNote onClick={() => setIsModalOpen(false)}/>
+					<CardNewNote onClick={() => setIsModalOpen(false)} />
 				</div>
 			)
 
