@@ -4,12 +4,19 @@ export function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
     useEffect(() => {
+        const stringfiedValue = JSON.stringify(value);
+
+
         const handler = setTimeout(() => {
-            setDebouncedValue(value);
+            const currentStringified = JSON.stringify(debouncedValue);
+
+            if (currentStringified !== stringfiedValue) {
+                setDebouncedValue(value);
+            }
         }, delay);
 
         return () => clearTimeout(handler);
-    }, [value, delay]);
+    }, [value, delay, debouncedValue]);
 
     return debouncedValue;
 }
