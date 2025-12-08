@@ -1,30 +1,50 @@
 "use client"
 
-import Header from "@/components/Header";
+import EditorHeader from "@/components/EditorHeader";
 import TextEditor from "@/components/TextEditor";
 import TitleWithBar from "@/components/TitleWithBar";
-// import { useDebounce } from "@/hooks/useDebounce";
 import { useDebounce } from "use-debounce";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import type { OutputData } from "@editorjs/editorjs";
+import { SpinnerBadge } from "@/components/Items/Spinner";
+import { useSearchParams } from "next/navigation";
+import { storage } from "@/lib/storage";
 
-export default function Editor() {
+function EditorContent() {
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+
     const [editorData, setEditorData] = useState<OutputData | undefined>();
+    const [noteTitle, setNoteTitle] = useState("Nova Nota");
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
-
-    const lastSavedDataRef = useRef<string>("");
 
     const [debouncedData] = useDebounce(editorData, 5000, {
         leading: false,
         trailing: true
     });
 
+    useEffect(() => {
+        if (id) {
+            const note = storage.getNote(id);
+            if (note) {
+                if (note.content) {
+                    setEditorData(note.content);
+                }
+                setNoteTitle(note.title);
+            }
+            setIsLoading(false);
+        } else {
+            setIsLoading(false);
+        }
+    }, [id]);
+
     const handleChange = (data: OutputData) => {
         if (data.blocks && data.blocks.length > 0) {
             console.log("Editando...");
             setEditorData(data);
-            setIsSaving(false);
+            setIsSaving(true);
         }
     }
 
@@ -34,60 +54,52 @@ export default function Editor() {
                 return
             };
 
-            const currentData = JSON.stringify(debouncedData);
-
-            if (currentData === lastSavedDataRef.current) {
-                console.log("Dados iguais, ignorando...")
-                return
-            };
+            if (!id) return;
 
             console.log("Salvando...", debouncedData);
             setIsSaving(true);
 
-            await new Promise(resolve => setTimeout(resolve, 500))
+            try {
+                storage.saveNote({
+                    id,
+                    content: debouncedData,
+                    description: debouncedData.blocks.find(b => b.type === 'paragraph')?.data.text.slice(0, 100) || "Sem descrição"
+                });
 
-            lastSavedDataRef.current = currentData
-            setLastSaved(new Date())
-            setIsSaving(true)
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-            console.log("✅ Salvo com sucesso!")
+                setLastSaved(new Date());
+                setIsSaving(false);
+                console.log("✅ Salvo com sucesso!");
+            } catch (error) {
+                console.error("Erro ao salvar", error);
+                setIsSaving(false);
+            }
         };
 
-        saveData()
-    }, [debouncedData])
+        saveData();
+    }, [debouncedData, id]);
 
-    const getTimeSinceLastSave = () => {
-        if (!lastSaved) return ""
-
-        const seconds = Math.floor((new Date().getTime() - lastSaved.getTime()) / 1000)
-
-        if (seconds < 5) return "agora"
-        if (seconds < 60) return `há ${seconds}s`
-
-        const minutes = Math.floor(seconds / 60)
-        return `há ${minutes}min`
+    if (isLoading) {
+        return <div className="flex justify-center p-10">Carregando...</div>;
     }
 
     return (
         <>
-            <Header />
-            <TitleWithBar title="Pop Chords" />
-            <div className="flex items-center gap-2 text-sm">
-                {isSaving ? (
-                    <>
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span className="text-gray-600">
-                            Salvo {getTimeSinceLastSave()}
-                        </span>
-                    </>
-                ) : (
-                    <>
-                        <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-                        <span className="text-gray-600">Editando...</span>
-                    </>
-                )}
+            <EditorHeader />
+            <TitleWithBar title={noteTitle} />
+            <SpinnerBadge isSaving={isSaving} />
+            <div className="bg-white min-h-screen">
+                <TextEditor initialData={editorData} onChange={handleChange} />
             </div>
-            <TextEditor onChange={handleChange} />
         </>
+    )
+}
+
+export default function Editor() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <EditorContent />
+        </Suspense>
     )
 }
