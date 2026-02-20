@@ -1,4 +1,4 @@
-import CardBeneficio from "./CardBeneficio";
+import CardBeneficio from "@/components/CardBeneficio";
 import { componentesBeneficios } from "@/constants/constBeneficios";
 
 export default function HomeBeneficios() {  

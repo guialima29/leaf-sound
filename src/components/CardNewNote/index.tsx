@@ -6,12 +6,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import {
-    InputGroup,
-} from "@/components/ui/input-group"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import TextareaAutosize from "react-textarea-autosize"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { storage } from "@/lib/storage"
@@ -23,11 +19,10 @@ interface CardNewNoteProp {
 
 export function CardNewNote({ onClick }: CardNewNoteProp) {
     const MAX_TITLE = 30;
-    const MAX_DESCRIPTION = 100;
     const router = useRouter();
 
     const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [description] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

@@ -1,6 +1,6 @@
 import Image from "next/image"
-import NavButton from "./NavButton"
-import { Button } from "./ui/button"
+import NavButton from "@/components/NavButton"
+import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function Header() {

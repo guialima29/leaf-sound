@@ -4,9 +4,7 @@ import {
     CardContent,
     CardHeader,
     CardTitle,
-    CardAction
 } from "@/components/ui/card"
-import { X } from "lucide-react"
 
 interface CardDeleteNoteProps {
     onCancel: () => void;

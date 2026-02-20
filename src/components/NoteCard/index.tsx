@@ -1,15 +1,13 @@
 import {
     Card,
-    CardAction,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link";
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 
 interface NoteCardProps {
     title: string;

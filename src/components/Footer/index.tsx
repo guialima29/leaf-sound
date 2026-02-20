@@ -1,4 +1,4 @@
-import ContactDialog from './ContactDialog';
+import ContactDialog from '@/components/ContactDialog';
 import Image from 'next/image';
 import Link from 'next/link';
 

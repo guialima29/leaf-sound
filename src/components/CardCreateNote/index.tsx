@@ -1,10 +1,8 @@
 import {
     Card,
-    CardContent,
-    CardFooter,
-    CardTitle,
+    CardContent
 } from "@/components/ui/card"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import Image from "next/image"
 
 interface CreateNoteProp{

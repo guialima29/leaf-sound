@@ -29,8 +29,8 @@ function generatePageNumbers(currentPage: number, totalPages: number) {
     } else {
         pages.push(1)
 
-        let startPage = Math.max(2, currentPage - 2);
-        let endPage = Math.min(totalPages - 1, currentPage + 2);
+        const startPage = Math.max(2, currentPage - 2);
+        const endPage = Math.min(totalPages - 1, currentPage + 2);
 
         console.log('startPage:', startPage)
         console.log('endPage:', endPage)
@@ -75,7 +75,7 @@ export default function NotesPagination({
                 </PaginationItem>
 
 
-                {pages.map((page, index) => {
+                {pages.map((page) => {
                     if (typeof page == 'string') {
                         return (
                             <PaginationItem key={page}>

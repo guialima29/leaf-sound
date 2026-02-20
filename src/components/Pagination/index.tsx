@@ -1,21 +1,12 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import {
-	Pagination,
-	PaginationContent,
-	PaginationEllipsis,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
 import { storage } from "@/lib/storage";
-import NoteCard from "./NoteCard";
-import Spinner from "./Spinner";
-import NotesPagination from "./NotesPagination";
-import CreateNoteCard from "./CardCreateNote";
-import { CardNewNote } from "./CardNewNote";
+import NoteCard from "../NoteCard";
+import Spinner from "../Spinner";
+import NotesPagination from "../NotesPagination";
+import CreateNoteCard from "../CardCreateNote";
+import { CardNewNote } from "../CardNewNote";
 
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);

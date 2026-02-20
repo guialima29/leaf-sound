@@ -1,16 +1,15 @@
 "use client"
 
 import Image from "next/image"
-import NavButton from "./NavButton"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import Link from "next/link"
-import { Home, ArrowBigLeft, Trash2 } from "lucide-react"
+import { ArrowBigLeft, Trash2 } from "lucide-react"
 import { useState } from "react"
-import { CardDeleteNote } from "./CardDeleteNote"
+import { CardDeleteNote } from "@/components/CardDeleteNote"
 import { useSearchParams, useRouter } from "next/navigation"
 import { storage } from "@/lib/storage"
 
-export default function Header() {
+export default function EditorHeader() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();

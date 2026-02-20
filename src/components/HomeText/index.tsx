@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import Link from "next/link"
 
 export default function HomeText() {
@@ -18,5 +18,3 @@ export default function HomeText() {
         </div>
     )
 }
-
-// style={{ width: "auto", height: "auto" }}

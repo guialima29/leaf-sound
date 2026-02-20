@@ -11,10 +11,9 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
-} from "./ui/navigation-menu";
+} from "../ui/navigation-menu";
 
 import type { LinkProps } from "next/link";
-// ...existing code...
 
 type ListItemProps = {
     className: string;

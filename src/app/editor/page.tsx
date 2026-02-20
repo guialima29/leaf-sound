@@ -4,9 +4,9 @@ import EditorHeader from "@/components/EditorHeader";
 import TextEditor from "@/components/TextEditor";
 import TitleWithBar from "@/components/TitleWithBar";
 import { useDebounce } from "use-debounce";
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import type { OutputData } from "@editorjs/editorjs";
-import { SpinnerBadge } from "@/components/Items/Spinner";
+import { SpinnerBadge } from "@/components/SpinnerBadge";
 import { useSearchParams } from "next/navigation";
 import { storage } from "@/lib/storage";
 

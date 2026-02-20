@@ -1,11 +1,8 @@
-import { Button } from "@/components/ui/button"
 import { infoContato } from "@/constants/constInfoContato"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
