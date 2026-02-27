@@ -1,4 +1,3 @@
-import { libreCaslonText, poppins } from "@/fonts/fonts";
 import { QueryProvider } from "@/providers/query-provider";
 import "@/app/editor/editor-styles.css"
 import "./globals.css";
@@ -16,7 +15,7 @@ export default function RootLayout({
 	return (
 		<html lang="pt-br" suppressHydrationWarning>
 			<body suppressHydrationWarning
-				className={`${libreCaslonText.variable} ${poppins.variable} antialiased`}
+				className={`antialiased`}
 			>
 				<QueryProvider>
 					{children}
