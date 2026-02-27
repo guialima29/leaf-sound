@@ -5,11 +5,16 @@ import Link from "next/link"
 export default function HomeText() {
     return (
         <div className="flex flex-row items-center justify-center gap-10">
-            <div className="flex flex-col gap-12 items-center">
-                <h1 className="font-bold font-libre-caslon text-[60px] text-[#2B3328]" >Crie com LeafSound</h1>
-                <div className="max-w-570px flex flex-row items-center gap-2">
+            <div className="flex flex-col gap-10 items-center">
+                {/* <h1 className="font-bold font-libre-caslon text-[60px] text-[#2B3328]" >Crie com <span className="text-[#5DAA3B]">LeafSound</span></h1> */}
+                <h1 className="font-bold text-center text-[54px] text-[#2B3328] max-w-150">
+                    Crie com{" "}
+                    <span className="text-[#5DAA3B]">LeafSound</span>{" "}
+                    e seja mais produtivo
+                </h1>
+                <div className="max-w-570px flex flex-row items-center gap-6">
                     <Image src={'/home/lf-logo-violao.png'} alt="LeafSound Logo Violão" width={60} height={105} />
-                    <h3 className="text-xl">Desbloqueia a sua imaginação com um<br/>bloco de notas interativo para músicos,<br/>compositores e criativos.</h3>
+                    <h3 className="text-xl">Desbloqueia a sua imaginação com um<br />bloco de notas interativo para músicos,<br />compositores e criativos.</h3>
                 </div>
                 <Button asChild className="bg-[#5DAA3B] hover:bg-[#43563B] hover:scale-105 font-[500] w-45 h-13 text-xl text-center drop-shadow-lg/25">
                     <Link href={'/login'}>Começar agora</Link>
