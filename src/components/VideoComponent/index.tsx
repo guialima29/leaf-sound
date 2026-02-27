@@ -17,7 +17,7 @@ function VideoPlayer() {
   const src = "https://www.youtube-nocookie.com/embed/T3sax7PB0vw?si=eGeFo0EE2J3aIPrQ";
   
   return ( 
-    <div className="flex justify-center items-center w-full">
+    <div className="flex justify-center items-center w-200">
       <div className="relative w-full max-w-4xl aspect-video">
         <iframe 
           className="absolute inset-0 w-full h-full rounded-lg"
