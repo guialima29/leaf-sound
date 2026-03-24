@@ -25,6 +25,9 @@ O usuário consegue **escrever estudo musical em um único lugar**: texto estrut
 - [ ] Workspace por usuário com lista de notas, favoritos e fluxo criar/editar/excluir
 - [ ] Autenticação end-to-end (Clerk) no frontend e integração com **API do backend Go** para dados de nota **por usuário** (ou estratégia clara até o contrato existir)
 - [ ] UX polida: salvamento confiável, estados vazios, acessibilidade básica nos blocos musicais
+- [ ] **CI**: integrações de código passam por **lint + build** (expandir para testes quando existirem)
+- [ ] **Segurança**: XSS, headers, validação de entrada, contrato com API Go (SQLi, rate limit no servidor)
+- [ ] **Performance**: metas tipo Core Web Vitals e otimização no estilo **TabNews** (leveza, cache, pouco JS crítico)
 
 ### Out of Scope (v1)
 
@@ -40,6 +43,7 @@ O usuário consegue **escrever estudo musical em um único lugar**: texto estrut
 - **Arquitetura alvo:** frontend (este repo) ↔ API REST/JSON (ou similar) exposta pelo **backend em Go** (outro repositório). O frontend pode usar rotas BFF/`app/api` do Next só como proxy ou utilitários, mas a **lógica de domínio e persistência** fica no serviço Go.
 - **Idioma da UI:** português (pt-BR) já usado em placeholders e datas.
 - **Risco técnico principal:** integrar VexFlow (canvas/SVG) com o ciclo de vida do Editor.js (mount/unmount, `save()`/JSON) sem perda de dados.
+- **Processo:** objetivo é que **toda atualização** relevante seja validada automaticamente (**CI-01**); fases posteriores cobrem **segurança** e **performance** de forma explícita no roadmap.
 
 ## Constraints
 
@@ -56,6 +60,8 @@ O usuário consegue **escrever estudo musical em um único lugar**: texto estrut
 | VexFlow para notação | Padrão em JS para pauta/tab; comunidade ativa | — Pending |
 | Clerk para auth | Já dependência do projeto | — Pending (integração completa) |
 | Backend em Go, repositório separado | Separação clara de responsabilidades; API consumida pelo frontend | — Pending (contrato + integração) |
+| Segurança em camadas | Front: XSS/headers/validação; Go: SQLi, rate limit, dados | — Pending (Fase 7) |
+| Performance inspirada em TabNews-like | CWV, bundle, cache, pouco JS no critical path | — Pending (Fase 8) |
 
 ## Evolution
 
@@ -75,4 +81,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after scope clarification (frontend-only repo; backend Go separate)*
+*Last updated: 2026-03-24 after roadmap extension (CI, security phase, performance / TabNews-inspired)*

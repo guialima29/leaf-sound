@@ -33,6 +33,25 @@
 - [ ] **AUTH-03**: Sessão **persiste** após recarregar a página
 - [ ] **WORK-02**: Com usuário autenticado, notas do workspace são **isoladas por usuário** (não vê notas de outros)
 
+### Qualidade e integração contínua
+
+- [ ] **CI-01**: Toda alteração relevante no código passa por **verificação automatizada** antes de integrar (mínimo: `lint` + `build`; quando existirem testes automatizados, incluir no mesmo fluxo). Objetivo: **não regressão** em funcionalidade já entregue.
+
+### Segurança (frontend + alinhamento com API Go)
+
+- [ ] **SEC-01**: **XSS**: conteúdo do editor e qualquer HTML renderizado seguem práticas seguras (evitar `dangerouslySetInnerHTML` sem sanitização; dados de blocos tratados como dados, não HTML confiável).
+- [ ] **SEC-02**: **Headers de segurança** aplicáveis no Next.js (ex.: CSP progressiva, `X-Content-Type-Options`, `Referrer-Policy` onde fizer sentido) documentados e configurados sem quebrar VexFlow/Editor.js.
+- [ ] **SEC-03**: **Validação de entrada** no cliente (limites de tamanho, tipos) antes de enviar à API; reforço de validação **no backend Go** documentado no contrato (este repo não implementa SQL).
+- [ ] **SEC-04**: **SQL injection**: inexistência de SQL no frontend; checklist e contrato de API exigem **queries parametrizadas / camada de acesso** no serviço Go (validação cruzada entre repos).
+- [ ] **SEC-05**: **Abuso / DoS / flood**: camada de **rate limiting** e quotas documentadas (edge, API Go, ou CDN); no cliente: debounce, limites de payload e comportamento sob erro **429**.
+- [ ] **SEC-06**: **Supply chain**: auditoria de dependências (`npm audit`, atualizações de segurança) e política de secrets (env, nunca commitar chaves).
+
+### Performance e experiência de carregamento
+
+- [ ] **PERF-01**: Metas de **Core Web Vitals** (LCP, INP, CLS) definidas para páginas principais e verificadas em ambiente de produção ou build otimizado.
+- [ ] **PERF-02**: Plano de otimização **inspirado em projetos como TabNews** (simplicidade, pouco JS no caminho crítico, cache e estáticos onde possível, streaming/App Router) — sem copiar stack alheia literalmente; priorizar **velocidade percebida** e TTFB.
+- [ ] **PERF-03**: **Code splitting** e carregamento tardio de **Editor.js, VexFlow e rotas pesadas**; revisão de bundles e imagens (Next/Image, fontes).
+
 ## v2 Requirements
 
 ### Produto
@@ -76,13 +95,23 @@
 | AUTH-02 | Phase 5 | Pending |
 | AUTH-03 | Phase 5 | Pending |
 | WORK-02 | Phase 5 | Pending |
+| CI-01 | Phase 6 | Pending |
+| SEC-01 | Phase 7 | Pending |
+| SEC-02 | Phase 7 | Pending |
+| SEC-03 | Phase 7 | Pending |
+| SEC-04 | Phase 7 | Pending |
+| SEC-05 | Phase 7 | Pending |
+| SEC-06 | Phase 7 | Pending |
+| PERF-01 | Phase 8 | Pending |
+| PERF-02 | Phase 8 | Pending |
+| PERF-03 | Phase 8 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 16 total  
-- Mapped to phases: 16  
+- v1 requirements: 27 total  
+- Mapped to phases: 27  
 - Unmapped: 0 ✓  
 
 ---
 *Requirements defined: 2026-03-24*  
-*Last updated: 2026-03-24 after scope clarification (frontend-only; backend Go separate)*
+*Last updated: 2026-03-24 after CI, security, and performance requirements*

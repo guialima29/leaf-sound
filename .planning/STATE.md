@@ -27,6 +27,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-24)
 
 - Brownfield: código existente em Next.js + Editor.js + `localStorage`; Clerk parcialmente integrado.
 - **Arquitetura:** este repo = **somente frontend**; **backend em Go** = projeto separado; Fase 5 integra via API.
+- **Roadmap:** 8 fases — após o MVP core, **Fase 6** inclui **CI** (lint/build por PR); **Fase 7** segurança; **Fase 8** performance (incl. linha TabNews).
 - Codebase map opcional: `/gsd-map-codebase` se quiser documentação automática de arquitetura.
 
 ## Next action
