@@ -2,7 +2,9 @@
 
 ## Overview
 
-Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + VexFlow**, três blocos musicais (acorde, tab, pauta), **workspace** com notas e favoritos, depois **Clerk** com dados **por usuário**, e por fim **polimento** e qualidade. A numeração segue granularidade **standard** (6 fases coerentes).
+Entregar o **MVP “Notion para música”** no **frontend** (este repositório): fundação de **tools Editor.js + VexFlow**, três blocos musicais (acorde, tab, pauta), **workspace** com notas e favoritos, depois **Clerk** e integração com dados **por usuário** via **API do backend em Go** (projeto separado), e por fim **polimento** e qualidade. A numeração segue granularidade **standard** (6 fases coerentes).
+
+**Nota de escopo:** implementação do servidor **não** ocorre aqui; a Fase 5 assume consumo de API exposta pelo serviço Go quando disponível (ou mocks/contrato até lá).
 
 ## Phases
 
@@ -10,7 +12,7 @@ Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + 
 - [ ] **Phase 2: Bloco de acordes** — Tool completa, render e persistência
 - [ ] **Phase 3: Tablatura e partitura** — Duas tools musicais com entrada MVP
 - [ ] **Phase 4: Workspace e ciclo de notas** — Lista, CRUD, favoritos, integração com blocos texto+música
-- [ ] **Phase 5: Autenticação e isolamento** — Clerk end-to-end, persistência por usuário
+- [ ] **Phase 5: Autenticação e isolamento** — Clerk no frontend, chamadas à API Go, persistência por usuário no backend (fora deste repo)
 - [ ] **Phase 6: Polimento e qualidade** — UX, a11y básico, testes críticos, performance
 
 ## Phase Details
@@ -93,7 +95,7 @@ Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + 
 ---
 
 ### Phase 5: Autenticação e isolamento
-**Goal**: Clerk integrado ao layout; rotas protegidas; notas associadas ao usuário (API + persistência remota ou estratégia definida no plano).
+**Goal**: Clerk integrado ao layout; rotas protegidas no **frontend**; cliente chama **API REST (ou similar)** do **backend Go** para CRUD de notas com `userId`/tenant no servidor. Persistência e isolamento **no servidor** são responsabilidade do projeto Go; aqui: integração, tratamento de erros, e migração/estratégia desde `localStorage` quando definida no plano.
 
 **Depends on**: Phase 4
 
@@ -102,8 +104,8 @@ Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + 
 **Success Criteria**:
 
 1. Login e logout funcionam; sessão persiste ao recarregar
-2. Usuário A não vê notas de usuário B
-3. Notas passam a ser persistidas de forma alinhada ao modelo multi-usuário (sem perda silenciosa dos dados locais — ver plano de migração)
+2. Com API disponível: usuário A não vê notas de usuário B (comportamento garantido pelo backend; frontend valida fluxos e erros)
+3. Notas remotas obtidas/persistidas via API Go (sem implementar Go neste repo; mocks aceitáveis até o serviço existir)
 
 **Plans**: TBD
 

@@ -3,6 +3,8 @@
 **Defined:** 2026-03-24  
 **Core Value:** Estudo musical em um único lugar — texto estruturado e notação (VexFlow) na mesma nota.
 
+**Escopo do repositório:** este projeto de planejamento e código **leaf-sound** cobre só o **frontend**. O **backend** (API, persistência, regras de isolamento no servidor) será um **serviço separado em Go**; os requisitos abaixo que falam em persistência remota/por usuário descrevem o comportamento **do produto** e a responsabilidade do **cliente** de integrar com essa API — não implicam implementar Go aqui.
+
 ## v1 Requirements
 
 ### Data & editor contract
@@ -22,7 +24,7 @@
 - [ ] **NOTE-03**: Usuário pode **excluir** uma nota
 - [ ] **NOTE-04**: Usuário pode **favoritar** e **desfavoritar** uma nota, com indicação clara na lista
 - [ ] **NOTE-05**: Alterações na nota são **persistidas localmente** e reaparecem ao reabrir no mesmo navegador (inclui conteúdo Editor.js com blocos musicais)
-- [ ] **NOTE-06**: Com usuário autenticado, notas são **persistidas de forma associada à conta** (substitui ou complementa o modelo apenas-local conforme plano da Fase 5)
+- [ ] **NOTE-06**: Com usuário autenticado, notas são **persistidas de forma associada à conta** via **API do backend Go** (frontend chama a API; armazenamento no servidor fica fora deste repo)
 
 ### Autenticação e isolamento
 
@@ -52,6 +54,7 @@
 | Apps iOS/Android nativos | Web first |
 | Editor WYSIWYG de partitura completa (Sibelius-like) | Complexidade; MVP usa entrada simplificada |
 | Sincronização offline-first | Depende de estratégia de backend madura |
+| Implementação do backend (Go), schema de DB, jobs | **Repositório / projeto Go separado** — fora do escopo deste codebase |
 
 ## Traceability
 
@@ -82,4 +85,4 @@
 
 ---
 *Requirements defined: 2026-03-24*  
-*Last updated: 2026-03-24 after roadmap creation*
+*Last updated: 2026-03-24 after scope clarification (frontend-only; backend Go separate)*
