@@ -30,7 +30,7 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 2. Uma tool de spike renderiza VexFlow no cliente e sobrevive a um ciclo salvar → recarregar sem corrupção do JSON
 3. Decisão registrada sobre limites de entrada (tamanho, compassos) para MVP
 
-**Plans**: TBD (refinar em `/gsd-plan-phase 1`)
+**Plans**: 3 plans — `01-01-PLAN.md` (deps + tipos), `01-02-PLAN.md` (tool VexFlow), `01-03-PLAN.md` (registro + estilos + verificação manual)
 
 **UI hint**: yes
 
@@ -138,7 +138,7 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contrato de dados e fundação técnica | 0/TBD | Not started | - |
+| 1. Contrato de dados e fundação técnica | 0/3 | Planned | - |
 | 2. Bloco de acordes | 0/TBD | Not started | - |
 | 3. Tablatura e partitura | 0/TBD | Not started | - |
 | 4. Workspace e ciclo de notas | 0/TBD | Not started | - |
