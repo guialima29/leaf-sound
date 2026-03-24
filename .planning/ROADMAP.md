@@ -77,7 +77,7 @@ Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + 
 
 **Depends on**: Phase 3
 
-**Requirements**: EDIT-04, WORK-01, NOTE-01, NOTE-02, NOTE-03, NOTE-04
+**Requirements**: EDIT-04, WORK-01, NOTE-01, NOTE-02, NOTE-03, NOTE-04, NOTE-05
 
 **Success Criteria**:
 
@@ -97,7 +97,7 @@ Entregar o **MVP “Notion para música”**: fundação de **tools Editor.js + 
 
 **Depends on**: Phase 4
 
-**Requirements**: NOTE-05, AUTH-01, AUTH-02, AUTH-03, WORK-02
+**Requirements**: NOTE-06, AUTH-01, AUTH-02, AUTH-03, WORK-02
 
 **Success Criteria**:
 

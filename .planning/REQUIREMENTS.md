@@ -20,7 +20,8 @@
 - [ ] **NOTE-02**: Usuário pode **abrir** uma nota e editar **título** e **corpo** (blocos)
 - [ ] **NOTE-03**: Usuário pode **excluir** uma nota
 - [ ] **NOTE-04**: Usuário pode **favoritar** e **desfavoritar** uma nota, com indicação clara na lista
-- [ ] **NOTE-05**: Alterações na nota são **persistidas** e reaparecem ao reabrir (mesmo dispositivo / mesma conta conforme fase de auth)
+- [ ] **NOTE-05**: Alterações na nota são **persistidas localmente** e reaparecem ao reabrir no mesmo navegador (inclui conteúdo Editor.js com blocos musicais)
+- [ ] **NOTE-06**: Com usuário autenticado, notas são **persistidas de forma associada à conta** (substitui ou complementa o modelo apenas-local conforme plano da Fase 5)
 
 ### Autenticação e isolamento
 
@@ -65,7 +66,8 @@
 | NOTE-02 | Phase 4 | Pending |
 | NOTE-03 | Phase 4 | Pending |
 | NOTE-04 | Phase 4 | Pending |
-| NOTE-05 | Phase 5 | Pending |
+| NOTE-05 | Phase 4 | Pending |
+| NOTE-06 | Phase 5 | Pending |
 | AUTH-01 | Phase 5 | Pending |
 | AUTH-02 | Phase 5 | Pending |
 | AUTH-03 | Phase 5 | Pending |
@@ -73,8 +75,8 @@
 
 **Coverage:**
 
-- v1 requirements: 15 total  
-- Mapped to phases: 15  
+- v1 requirements: 16 total  
+- Mapped to phases: 16  
 - Unmapped: 0 ✓  
 
 ---
