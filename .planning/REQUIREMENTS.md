@@ -12,6 +12,7 @@
 - [ ] **EDIT-02**: Usuário pode inserir e editar um bloco de **tablatura** renderizado com VexFlow
 - [ ] **EDIT-03**: Usuário pode inserir e editar um bloco de **partitura (pauta)** renderizado com VexFlow
 - [ ] **EDIT-04**: Usuário pode usar blocos de texto existentes (cabeçalho, parágrafo, lista, código) na mesma nota que os blocos musicais
+- [ ] **EDIT-05**: Na página de edição da nota, o usuário terá uma barra de funcionalidades musicais (ex.: metrônomo, auto-rolagem acompanhando o BPM, acordes fixos na lateral renderizados com VexFlow)
 
 ### Workspace e notas
 
