@@ -88,7 +88,7 @@ function EditorContent() {
         <>
             <EditorHeader />
             <TitleWithBar title={noteTitle} />
-            <SpinnerBadge isSaving={isSaving} />
+            <SpinnerBadge isSaving={isSaving} lastSaved={lastSaved} />
             <div className="bg-white min-h-screen">
                 <TextEditor initialData={editorData} onChange={handleChange} />
             </div>

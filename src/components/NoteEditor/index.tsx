@@ -1,13 +1,6 @@
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 
-interface NoteEditorProps {
-    initialDate?: any,
-    onChange?: (data: any) => void;
-}
-
-export function NoteEditor({ initialDate, onChange }: NoteEditorProps) {
-    const editorRef = useRef<any>(null);
-
+export function NoteEditor() {
     useEffect(() => {
         console.log("Editor montado")
 

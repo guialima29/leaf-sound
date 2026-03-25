@@ -5,13 +5,13 @@
 ## Current focus
 
 - **Milestone:** v1 MVP (Notion para música com VexFlow)
-- **Phase:** 1 — Contrato de dados e fundação técnica — **planos criados** (3 plans; pronto para executar)
+- **Phase:** 1 — **concluída** (spike VexFlow + tipos); próxima: **Fase 2**
 - **Mode:** yolo (config)
 
 ## Session continuity
 
-- **Stopped at:** Phase 1 planning complete (`/gsd-plan-phase 1`)
-- **Resume from:** `.planning/phases/01-contrato-de-dados-e-funda-o-t-cnica/01-01-PLAN.md` (wave 1)
+- **Stopped at:** Phase 1 executada (código + build verde)
+- **Resume from:** `/gsd-discuss-phase 2` ou `/gsd-plan-phase 2`
 
 ## Project reference
 
@@ -32,4 +32,4 @@ See: `.planning/PROJECT.md` (updated 2026-03-24)
 
 ## Next action
 
-Run `/gsd-execute-phase 1` (ou executar planos em ordem: `01-01` → `01-02` → `01-03`). Opcional: `/clear` antes para janela de contexto limpa.
+Run `/gsd-discuss-phase 2` ou `/gsd-plan-phase 2` para o bloco de acordes. Opcional: `/gsd-transition` após verificar UAT da Fase 1.

@@ -107,3 +107,22 @@ h3.ce-header {
 .codex-editor--empty .ce-block:first-child .ce-paragraph[data-placeholder]:empty::before {
     color: #9ca3af;
 }
+
+/* Bloco musical (VexFlow spike) */
+.leaf-music-spike {
+    width: 100%;
+    max-width: 100%;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+}
+
+.leaf-music-spike__vex-host {
+    min-height: 140px;
+    width: 100%;
+}
+
+.leaf-music-spike--error {
+    color: #b91c1c;
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+}

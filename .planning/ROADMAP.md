@@ -8,7 +8,7 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 ## Phases
 
-- [ ] **Phase 1: Contrato de dados e fundação técnica** — Padrão de custom tools, tipos TS, spike VexFlow no editor
+- [x] **Phase 1: Contrato de dados e fundação técnica** — Padrão de custom tools, tipos TS, spike VexFlow no editor
 - [ ] **Phase 2: Bloco de acordes** — Tool completa, render e persistência
 - [ ] **Phase 3: Tablatura e partitura** — Duas tools musicais com entrada MVP
 - [ ] **Phase 4: Workspace e ciclo de notas** — Lista, CRUD, favoritos, integração com blocos texto+música
@@ -181,7 +181,7 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Contrato de dados e fundação técnica | 0/3 | Planned | - |
+| 1. Contrato de dados e fundação técnica | 3/3 | Complete | 2026-03-24 |
 | 2. Bloco de acordes | 0/TBD | Not started | - |
 | 3. Tablatura e partitura | 0/TBD | Not started | - |
 | 4. Workspace e ciclo de notas | 0/TBD | Not started | - |

@@ -9,8 +9,13 @@ interface NoteEditorProps {
     onChange?: (data: OutputData) => void
 }
 
+type EditorInstance = {
+    save: () => Promise<OutputData>
+    destroy?: () => void
+}
+
 export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
-    const editorRef = useRef<any>(null)
+    const editorRef = useRef<EditorInstance | null>(null)
     const [isMounted, setIsMounted] = useState(false)
 
     const onChangeRef = useRef(onChange);
@@ -32,13 +37,14 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
             const List = (await import("@editorjs/list")).default
             const Code = (await import("@editorjs/code")).default
             const Paragraph = (await import("@editorjs/paragraph")).default
+            const LeafMusicSpikeTool = (await import("@/lib/editorjs/tools/LeafMusicSpikeTool")).default
 
             if (!editorRef.current) {
                 const editor = new EditorJS({
                     holder: "editorjs",
                     tools: {
                         header: {
-                            // @ts-ignore
+                            // @ts-expect-error Editor.js tool class vs ESM default export
                             class: Header,
                             inlineToolbar: true,
                             config: {
@@ -48,7 +54,7 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                             }
                         },
                         paragraph: {
-                            // @ts-ignore
+                            // @ts-expect-error Editor.js tool class vs ESM default export
                             class: Paragraph,
                             inlineToolbar: true,
                             config: {
@@ -61,7 +67,10 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                         },
                         code: {
                             class: Code,
-                        }
+                        },
+                        leafMusic_spike: {
+                            class: LeafMusicSpikeTool,
+                        },
                     },
                     data: initialData,
                     onChange: async () => {
@@ -84,6 +93,8 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                 editorRef.current = null
             }
         }
+        // initialData aplicado só na criação; evitar re-init completo a cada mudança
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once editor; idem padrão anterior
     }, [isMounted])
 
     if (!isMounted) {
