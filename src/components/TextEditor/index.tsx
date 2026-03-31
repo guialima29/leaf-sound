@@ -37,7 +37,8 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
             const List = (await import("@editorjs/list")).default
             const Code = (await import("@editorjs/code")).default
             const Paragraph = (await import("@editorjs/paragraph")).default
-            const LeafMusicSpikeTool = (await import("@/lib/editorjs/tools/LeafMusicSpikeTool")).default
+            const LeafMusicPartituraTool = (await import("@/lib/editorjs/tools/LeafMusicPartituraTool")).default
+            const LeafMusicAcordesTool = (await import("@/lib/editorjs/tools/LeafMusicAcordesTool")).default
 
             if (!editorRef.current) {
                 const editor = new EditorJS({
@@ -68,8 +69,11 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
                         code: {
                             class: Code,
                         },
-                        leafMusic_spike: {
-                            class: LeafMusicSpikeTool,
+                        leafMusic_partitura: {
+                            class: LeafMusicPartituraTool,
+                        },
+                        leafMusic_acordes: {
+                            class: LeafMusicAcordesTool,
                         },
                     },
                     data: initialData,

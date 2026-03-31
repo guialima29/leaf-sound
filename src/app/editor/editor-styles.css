@@ -16,8 +16,8 @@
 
 .ce-toolbar__plus,
 .ce-toolbar__settings-btn {
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--background, white);
+    border: 1px solid var(--border, #e5e7eb);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
@@ -54,7 +54,7 @@ h3.ce-header {
 }
 
 .ce-paragraph[data-placeholder]:empty::before {
-    color: #9ca3af;
+    color: var(--muted-foreground, #9ca3af);
     font-weight: normal;
 }
 
@@ -75,18 +75,18 @@ h3.ce-header {
     font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 0.875rem;
     line-height: 1.5;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--secondary, #f9fafb);
+    border: 1px solid var(--border, #e5e7eb);
     border-radius: 0.375rem;
     padding: 1rem;
-    color: #1f2937;
+    color: var(--foreground, #1f2937);
     resize: vertical;
     outline: none;
 }
 
 .ce-code__textarea:focus {
-    border-color: #3b82f6;
-    background: white;
+    border-color: var(--ring, #3b82f6);
+    background: var(--background, white);
 }
 
 /* Remover espaçamentos extras */
@@ -105,24 +105,409 @@ h3.ce-header {
 
 /* Placeholder inicial */
 .codex-editor--empty .ce-block:first-child .ce-paragraph[data-placeholder]:empty::before {
-    color: #9ca3af;
+    color: var(--muted-foreground, #9ca3af);
 }
 
-/* Bloco musical (VexFlow spike) */
-.leaf-music-spike {
+/* ═══════════════════════════════════════════
+   Bloco Partitura (VexFlow)
+   ═══════════════════════════════════════════ */
+
+.leaf-music-partitura {
     width: 100%;
     max-width: 100%;
     margin: 0.75rem 0;
     overflow-x: auto;
 }
 
-.leaf-music-spike__vex-host {
-    min-height: 140px;
+.leaf-music-partitura__container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.leaf-music-partitura__editor {
+    background: var(--secondary, #f9fafb);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.leaf-music-partitura__label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--foreground, #374151);
+    font-size: 14px;
+}
+
+.leaf-music-partitura__input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: monospace;
+    margin-bottom: 10px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-partitura__input:focus {
+    outline: none;
+    border-color: var(--ring, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.leaf-music-partitura__config {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.leaf-music-partitura__config label {
+    font-size: 14px;
+    color: var(--muted-foreground, #4b5563);
+}
+
+.leaf-music-partitura__select {
+    padding: 6px 10px;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+    cursor: pointer;
+}
+
+.leaf-music-partitura__btn {
+    background: var(--primary, #21212e);
+    color: var(--primary-foreground, #f9f9f9);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.leaf-music-partitura__btn:hover {
+    opacity: 0.85;
+}
+
+.leaf-music-partitura__preview {
+    min-height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--background, white);
+    border-radius: 8px;
+    border: 1px solid var(--border, #e5e7eb);
+    padding: 10px;
+}
+
+.leaf-music-partitura--error {
+    color: var(--destructive, #b91c1c);
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+}
+
+/* ═══════════════════════════════════════════
+   Bloco Acordes (VexChords)
+   ═══════════════════════════════════════════ */
+
+.leaf-music-acordes {
+    width: 100%;
+    max-width: 100%;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+}
+
+.leaf-music-acordes__container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.leaf-music-acordes__editor {
+    background: var(--secondary, #f9fafb);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.leaf-music-acordes__input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.leaf-music-acordes__label {
+    font-weight: 600;
+    color: var(--foreground, #374151);
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.leaf-music-acordes__input {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__input:focus {
+    outline: none;
+    border-color: var(--ring, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.leaf-music-acordes__btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s;
+}
+
+.leaf-music-acordes__btn--add {
+    background: var(--primary, #21212e);
+    color: var(--primary-foreground, #f9f9f9);
+}
+
+.leaf-music-acordes__btn--add:hover {
+    opacity: 0.85;
+}
+
+.leaf-music-acordes__btn--custom {
+    background: var(--accent, #f4f4f5);
+    color: var(--accent-foreground, #21212e);
+    border: 1px solid var(--border, #e5e7eb);
+    width: 100%;
+    margin-top: 10px;
+}
+
+.leaf-music-acordes__btn--custom:hover {
+    opacity: 0.85;
+}
+
+.leaf-music-acordes__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.leaf-music-acordes__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--background, white);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--input, #d1d5db);
+    font-size: 14px;
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__delete {
+    background: var(--destructive, #ef4444);
+    color: white;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    transition: opacity 0.2s;
+}
+
+.leaf-music-acordes__delete:hover {
+    opacity: 0.85;
+}
+
+.leaf-music-acordes__preview {
+    min-height: 150px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    padding: 15px;
+    background: var(--background, white);
+    border-radius: 8px;
+    border: 1px solid var(--border, #e5e7eb);
+}
+
+.leaf-music-acordes__chord-item {
+    display: inline-block;
+    text-align: center;
+}
+
+.leaf-music-acordes__chord-name {
+    font-weight: 600;
+    color: var(--foreground, #374151);
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.leaf-music-acordes__empty {
+    color: var(--muted-foreground, #9ca3af);
+    font-size: 14px;
+    font-style: italic;
+    padding: 20px;
+    text-align: center;
     width: 100%;
 }
 
-.leaf-music-spike--error {
-    color: #b91c1c;
+.leaf-music-acordes--error {
+    color: var(--destructive, #b91c1c);
     font-size: 0.875rem;
     padding: 0.5rem 0;
+}
+
+/* ═══════════════════════════════════════════
+   Modal de personalização de acorde
+   ═══════════════════════════════════════════ */
+
+.leaf-music-acordes__modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+}
+
+.leaf-music-acordes__modal-content {
+    background: var(--card, white);
+    color: var(--card-foreground, #1f2937);
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid var(--border, #e5e7eb);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.leaf-music-acordes__modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__modal-field {
+    margin-bottom: 15px;
+}
+
+.leaf-music-acordes__modal-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--foreground, #374151);
+}
+
+.leaf-music-acordes__modal-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__modal-input:focus {
+    outline: none;
+    border-color: var(--ring, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.leaf-music-acordes__modal-strings {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.leaf-music-acordes__modal-string-wrapper {
+    text-align: center;
+    flex: 1;
+}
+
+.leaf-music-acordes__modal-string-label {
+    font-size: 12px;
+    color: var(--muted-foreground, #6b7280);
+    margin-bottom: 5px;
+}
+
+.leaf-music-acordes__modal-string-input {
+    width: 100%;
+    padding: 6px;
+    text-align: center;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__modal-string-input:focus {
+    outline: none;
+    border-color: var(--ring, #3b82f6);
+}
+
+.leaf-music-acordes__modal-position-input {
+    width: 60px;
+    padding: 6px;
+    border: 1px solid var(--input, #d1d5db);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--background, white);
+    color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.leaf-music-acordes__btn--save {
+    background: var(--primary, #21212e);
+    color: var(--primary-foreground, #f9f9f9);
+    flex: 1;
+}
+
+.leaf-music-acordes__btn--save:hover {
+    opacity: 0.85;
+}
+
+.leaf-music-acordes__btn--cancel {
+    background: var(--destructive, #ef4444);
+    color: white;
+    flex: 1;
+}
+
+.leaf-music-acordes__btn--cancel:hover {
+    opacity: 0.85;
 }
