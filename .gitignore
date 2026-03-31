@@ -66,3 +66,9 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# agents GSD
+.agent/
+.cursor/
+.gemini/
+.opencode/
