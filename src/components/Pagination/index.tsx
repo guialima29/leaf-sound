@@ -82,8 +82,7 @@ export default function PaginationDemo() {
 
             {allNotes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-6 py-12">
-                    <EmptyNotes />
-                    <CreateNoteCard onClick={() => setIsModalOpen(true)} />
+                    <EmptyNotes onCreateNote={() => setIsModalOpen(true)}/>
                 </div>
             ) : (
                 <>
