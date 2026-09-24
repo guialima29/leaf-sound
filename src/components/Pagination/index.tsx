@@ -8,18 +8,23 @@ import NotesPagination from "../NotesPagination";
 import CreateNoteCard from "../CardCreateNote";
 import { CardNewNote } from "../CardNewNote";
 import EmptyNotes from "../EmptyNotes";
+import { useWorkspace } from "@/contexts/workspace-context";
 
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const itemsPerPage = 12;
+	const { activeWorkspace, refresh: refreshWorkspace } = useWorkspace();
 
 	const { data, isLoading, isError, refetch } = useQuery({
-		queryKey: ['notes'],
+		queryKey: ['notes', activeWorkspace?.id],
 		queryFn: async () => {
 			if (typeof window === 'undefined') return [];
 			const notes = storage.getNotes();
-			return notes.sort((a, b) => b.updatedAt - a.updatedAt);
+			if (!activeWorkspace) return notes;
+			return notes
+				.filter((n) => !n.workspaceId || n.workspaceId === activeWorkspace.id)
+				.sort((a, b) => b.updatedAt - a.updatedAt);
 		}
 	})
 
@@ -27,9 +32,10 @@ export default function PaginationDemo() {
 	useEffect(() => {
         if (prevModalState.current && !isModalOpen) {
             refetch();
+            refreshWorkspace();
         }
         prevModalState.current = isModalOpen;
-    }, [isModalOpen, refetch]);
+    }, [isModalOpen, refetch, refreshWorkspace]);
 
 	if (isLoading) {
         return (

@@ -1,0 +1,196 @@
+"use client";
+
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { Workspace, Section, WorkspaceNote } from "@/types/workspace";
+import { workspaceService } from "@/lib/api/workspace-service";
+
+interface WorkspaceContextType {
+  activeWorkspace: Workspace | null;
+  workspaces: Workspace[];
+  sections: Section[];
+  notes: WorkspaceNote[];
+  isLoading: boolean;
+  switchWorkspace: (workspaceId: string) => void;
+  createWorkspace: (name: string, description?: string) => Promise<Workspace>;
+  deleteWorkspace: (id: string) => Promise<void>;
+  createSection: (name: string) => Promise<Section>;
+  renameSection: (id: string, name: string) => Promise<Section>;
+  deleteSection: (id: string, moveNotesToRoot?: boolean) => Promise<void>;
+  createNote: (title: string, sectionId?: string | null) => Promise<WorkspaceNote>;
+  renameNote: (id: string, newTitle: string) => Promise<WorkspaceNote>;
+  moveNoteToSection: (noteId: string, sectionId: string | null) => Promise<WorkspaceNote>;
+  deleteNote: (id: string) => Promise<void>;
+  refresh: () => Promise<void>;
+}
+
+const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
+
+export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [notes, setNotes] = useState<WorkspaceNote[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carrega seções e notas da workspace ativa
+  const loadWorkspaceData = useCallback(async (wsId: string) => {
+    try {
+      const [fetchedSections, fetchedNotes] = await Promise.all([
+        workspaceService.getSections(wsId),
+        workspaceService.getNotes(wsId),
+      ]);
+      setSections(fetchedSections);
+      setNotes(fetchedNotes);
+    } catch (err) {
+      console.error("Erro ao carregar dados da workspace:", err);
+    }
+  }, []);
+
+  // Carrega workspaces iniciais
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const wsList = await workspaceService.getWorkspaces();
+      setWorkspaces(wsList);
+
+      const savedActiveId = workspaceService.getActiveWorkspaceId();
+      const currentActive = wsList.find((w) => w.id === savedActiveId) || wsList[0] || null;
+
+      setActiveWorkspace(currentActive);
+      if (currentActive) {
+        workspaceService.setActiveWorkspaceId(currentActive.id);
+        await loadWorkspaceData(currentActive.id);
+      } else {
+        setSections([]);
+        setNotes([]);
+      }
+    } catch (err) {
+      console.error("Erro ao inicializar workspaces:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadWorkspaceData]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const switchWorkspace = useCallback((workspaceId: string) => {
+    const target = workspaces.find((w) => w.id === workspaceId);
+    if (target) {
+      setActiveWorkspace(target);
+      workspaceService.setActiveWorkspaceId(target.id);
+      loadWorkspaceData(target.id);
+    }
+  }, [workspaces, loadWorkspaceData]);
+
+  const createWorkspace = useCallback(async (name: string, description?: string) => {
+    const created = await workspaceService.createWorkspace(name, description);
+    setWorkspaces((prev) => [created, ...prev]);
+    setActiveWorkspace(created);
+    workspaceService.setActiveWorkspaceId(created.id);
+    setSections([]);
+    setNotes([]);
+    return created;
+  }, []);
+
+  const deleteWorkspace = useCallback(async (id: string) => {
+    await workspaceService.deleteWorkspace(id);
+    const updated = workspaces.filter((w) => w.id !== id);
+    setWorkspaces(updated);
+    if (activeWorkspace?.id === id) {
+      const nextActive = updated[0] || null;
+      setActiveWorkspace(nextActive);
+      if (nextActive) {
+        workspaceService.setActiveWorkspaceId(nextActive.id);
+        loadWorkspaceData(nextActive.id);
+      } else {
+        setSections([]);
+        setNotes([]);
+      }
+    }
+  }, [workspaces, activeWorkspace, loadWorkspaceData]);
+
+  const createSection = useCallback(async (name: string) => {
+    if (!activeWorkspace) throw new Error("Nenhuma workspace ativa");
+    const created = await workspaceService.createSection(activeWorkspace.id, name);
+    setSections((prev) => [...prev, created]);
+    return created;
+  }, [activeWorkspace]);
+
+  const renameSection = useCallback(async (id: string, name: string) => {
+    const updated = await workspaceService.renameSection(id, name);
+    setSections((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    return updated;
+  }, []);
+
+  const deleteSection = useCallback(async (id: string, moveNotesToRoot = true) => {
+    await workspaceService.deleteSection(id, moveNotesToRoot);
+    setSections((prev) => prev.filter((s) => s.id !== id));
+    if (moveNotesToRoot) {
+      setNotes((prev) =>
+        prev.map((n) => (n.sectionId === id ? { ...n, sectionId: null } : n))
+      );
+    } else {
+      setNotes((prev) => prev.filter((n) => n.sectionId !== id));
+    }
+  }, []);
+
+  const createNote = useCallback(async (title: string, sectionId?: string | null) => {
+    if (!activeWorkspace) throw new Error("Nenhuma workspace ativa");
+    const created = await workspaceService.createNote(activeWorkspace.id, title, sectionId);
+    setNotes((prev) => [created, ...prev]);
+    return created;
+  }, [activeWorkspace]);
+
+  const renameNote = useCallback(async (id: string, newTitle: string) => {
+    const updated = await workspaceService.renameNote(id, newTitle);
+    setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
+    return updated;
+  }, []);
+
+  const moveNoteToSection = useCallback(async (noteId: string, sectionId: string | null) => {
+    const updated = await workspaceService.moveNoteToSection(noteId, sectionId);
+    setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
+    return updated;
+  }, []);
+
+  const deleteNote = useCallback(async (id: string) => {
+    await workspaceService.deleteNote(id);
+    setNotes((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  return (
+    <WorkspaceContext.Provider
+      value={{
+        activeWorkspace,
+        workspaces,
+        sections,
+        notes,
+        isLoading,
+        switchWorkspace,
+        createWorkspace,
+        deleteWorkspace,
+        createSection,
+        renameSection,
+        deleteSection,
+        createNote,
+        renameNote,
+        moveNoteToSection,
+        deleteNote,
+        refresh,
+      }}
+    >
+      {children}
+    </WorkspaceContext.Provider>
+  );
+}
+
+export function useWorkspace() {
+  const context = useContext(WorkspaceContext);
+  if (!context) {
+    throw new Error("useWorkspace deve ser utilizado dentro de um WorkspaceProvider");
+  }
+  return context;
+}
+

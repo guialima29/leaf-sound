@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import * as React from "react";
+import { Check, ChevronsUpDown, FolderKanban, Plus } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -9,31 +9,29 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useWorkspace } from "@/contexts/workspace-context";
 
-export function WorkspaceSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
-}) {
-  const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+interface WorkspaceSwitcherProp {
+  handleCreateWorkspace?: () => void;
+}
 
-  if (!activeTeam) {
-    return null
+export function WorkspaceSwitcher({ handleCreateWorkspace }: WorkspaceSwitcherProp) {
+  const { isMobile } = useSidebar();
+  const { workspaces, activeWorkspace, switchWorkspace } = useWorkspace();
+
+  if (!activeWorkspace && workspaces.length === 0) {
+    return null;
   }
+
+  const currentWorkspace = activeWorkspace || workspaces[0];
 
   return (
     <SidebarMenu>
@@ -44,14 +42,16 @@ export function WorkspaceSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <activeTeam.logo className="size-4" />
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold text-sm">
+                {currentWorkspace?.name ? currentWorkspace.name.substring(0, 2).toUpperCase() : <FolderKanban className="size-4" />}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                <span className="truncate font-medium">{currentWorkspace?.name || "Workspace"}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {currentWorkspace?.description || "Espaço de notas"}
+                </span>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -61,31 +61,38 @@ export function WorkspaceSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Teams
+              Minhas Workspaces
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {workspaces.map((ws) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                key={ws.id}
+                onClick={() => switchWorkspace(ws.id)}
+                className="gap-2 p-2 cursor-pointer flex items-center justify-between"
               >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  <team.logo className="size-3.5 shrink-0" />
+                <div className="flex items-center gap-2 truncate">
+                  <div className="flex size-6 items-center justify-center rounded-md border text-xs font-medium bg-muted">
+                    {ws.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="truncate">{ws.name}</span>
                 </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                {currentWorkspace?.id === ws.id && (
+                  <Check className="size-4 text-primary shrink-0" />
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem
+              onClick={handleCreateWorkspace}
+              className="gap-2 p-2 cursor-pointer font-medium text-primary hover:text-primary"
+            >
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+              <div>Criar Workspace</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

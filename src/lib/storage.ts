@@ -5,6 +5,8 @@ const STORAGE_KEY = 'leaf-sound-notes';
 
 export interface Note {
     id: string;
+    workspaceId?: string;
+    sectionId?: string | null;
     title: string;
     description: string;
     content?: OutputData;
@@ -62,9 +64,14 @@ export const storage = {
         const notes = storage.getNotes();
         const now = new Date();
         const id = crypto.randomUUID();
+        const activeWsId = typeof window !== 'undefined'
+            ? localStorage.getItem('leaf-sound-active-workspace-id') || 'default-workspace'
+            : 'default-workspace';
 
         const newNote: Note = {
             id,
+            workspaceId: activeWsId,
+            sectionId: null,
             title,
             description,
             content: undefined,
