@@ -1,21 +1,21 @@
 # State: LeafSound
 
-**Updated:** 2026-03-24
+**Updated:** 2026-09-23
 
 ## Current focus
 
 - **Milestone:** v1 MVP (Notion para música com VexFlow)
-- **Phase:** 1 — **concluída** (spike VexFlow + tipos); próxima: **Fase 2**
+- **Phase:** 2 — **em execução / concluída** (Sistema de Workspaces, Seções e Sidebar de Notas)
 - **Mode:** yolo (config)
 
 ## Session continuity
 
-- **Stopped at:** Phase 1 executada (código + build verde)
-- **Resume from:** `/gsd-discuss-phase 2` ou `/gsd-plan-phase 2`
+- **Stopped at:** Fase 2 implementada (WorkspaceSwitcher dinâmico, seções sem aninhamento, botões rápidos, ContextMenu e Drag & Drop)
+- **Resume from:** Verificação e testes da Fase 2
 
 ## Project reference
 
-See: `.planning/PROJECT.md` (updated 2026-03-24)
+See: `.planning/PROJECT.md`
 
 **Core value:** Estudo musical em um único lugar — texto e notação na mesma nota.
 
@@ -25,11 +25,11 @@ See: `.planning/PROJECT.md` (updated 2026-03-24)
 
 ## Notes
 
-- Brownfield: código existente em Next.js + Editor.js + `localStorage`; Clerk parcialmente integrado.
-- **Arquitetura:** este repo = **somente frontend**; **backend em Go** = projeto separado; Fase 5 integra via API.
-- **Roadmap:** 8 fases — após o MVP core, **Fase 6** inclui **CI** (lint/build por PR); **Fase 7** segurança; **Fase 8** performance (incl. linha TabNews).
-- Codebase map opcional: `/gsd-map-codebase` se quiser documentação automática de arquitetura.
+- Brownfield: Next.js + Editor.js + TanStack Query + shadcn-ui + Tailwind.
+- **Arquitetura:** Workspaces e Seções com persistência híbrida (API backend Go + fallback local em `localStorage`).
+- **Sidebar:** `WorkspaceSwitcher` dinâmico, árvore de notas com seções (profundidade 1), botões rápidos no footer e drag and drop nativo.
 
 ## Next action
 
-Run `/gsd-discuss-phase 2` ou `/gsd-plan-phase 2` para o bloco de acordes. Opcional: `/gsd-transition` após verificar UAT da Fase 1.
+Executar verificação automatizada (`npm run lint` e `npm run build`) e validar os fluxos no navegador.
+

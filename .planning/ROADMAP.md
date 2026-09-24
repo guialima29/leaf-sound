@@ -9,13 +9,14 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 ## Phases
 
 - [x] **Phase 1: Contrato de dados e fundação técnica** — Padrão de custom tools, tipos TS, spike VexFlow no editor
-- [ ] **Phase 2: Bloco de acordes** — Tool completa, render e persistência
-- [ ] **Phase 3: Tablatura e partitura** — Duas tools musicais com entrada MVP
-- [ ] **Phase 4: Workspace e ciclo de notas** — Lista, CRUD, favoritos, integração com blocos texto+música
-- [ ] **Phase 5: Autenticação e isolamento** — Clerk no frontend, chamadas à API Go, persistência por usuário no backend (fora deste repo)
-- [ ] **Phase 6: Polimento, qualidade e CI** — UX, a11y, testes críticos; **lint + build obrigatórios** no fluxo de integração (**CI-01**)
-- [ ] **Phase 7: Segurança** — XSS, headers, validação de entrada, contrato anti-SQLi com Go, rate limiting/abuso, supply chain
-- [ ] **Phase 8: Performance** — Core Web Vitals, otimização de bundle e carregamento (linha TabNews: leveza e cache)
+- [ ] **Phase 2: Sistema de Workspaces, Seções e Sidebar de Notas** — WorkspaceSwitcher, seções não-aninhadas, botões rápidos, ContextMenu e Drag & Drop
+- [ ] **Phase 3: Bloco de acordes** — Tool completa, render e persistência
+- [ ] **Phase 4: Tablatura e partitura** — Duas tools musicais com entrada MVP
+- [ ] **Phase 5: Editor e ciclo de notas com blocos musicais** — Integração com blocos texto+música, favoritos, persistência completa
+- [ ] **Phase 6: Autenticação e isolamento** — Clerk no frontend, chamadas à API Go, persistência por usuário no backend (fora deste repo)
+- [ ] **Phase 7: Polimento, qualidade e CI** — UX, a11y, testes críticos; **lint + build obrigatórios** no fluxo de integração (**CI-01**)
+- [ ] **Phase 8: Segurança** — XSS, headers, validação de entrada, contrato anti-SQLi com Go, rate limiting/abuso, supply chain
+- [ ] **Phase 9: Performance** — Core Web Vitals, otimização de bundle e carregamento (linha TabNews: leveza e cache)
 
 ## Phase Details
 
@@ -38,20 +39,22 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 ---
 
-### Phase 2: Bloco de acordes
-**Goal**: Bloco de acordes utilizável no dia a dia, com UX mínima de edição.
+### Phase 2: Sistema de Workspaces, Seções e Sidebar de Notas
+**Goal**: Sistema de Workspaces e Seções sincronizado com backend/local, com criação/troca no switcher, seções de notas (profundidade 1), botões rápidos no footer (+Nota, +Seção), ContextMenu (shadcn-ui) e Drag and Drop.
 
 **Depends on**: Phase 1
 
-**Requirements**: EDIT-01
+**Requirements**: WORK-01, NOTE-01, NOTE-03, NOTE-05
 
 **Success Criteria**:
 
-1. Usuário insere bloco de acorde pelo menu de blocos do editor
-2. Acorde renderiza corretamente com VexFlow após reabrir a nota
-3. Erros de entrada são tratados sem quebrar a página (fallback ou mensagem)
+1. WorkspaceSwitcher permite alternar e criar workspaces dinamicamente
+2. Seções organizam notas sem permitir aninhamento (profundidade máxima de 1 nível)
+3. Botões "+ Nota" e "+ Seção" acima do NavUser realizam criação ágil
+4. Clique com botão direito exibe ContextMenu com ações de renomear, mover para seção e excluir
+5. Notas podem ser arrastadas para dentro e para fora de seções com feedback visual imediato
 
-**Plans**: TBD
+**Plans**: `02-01-PLAN.md`
 
 **UI hint**: yes
 
