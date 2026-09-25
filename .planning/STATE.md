@@ -5,13 +5,13 @@
 ## Current focus
 
 - **Milestone:** v1 MVP (Notion para música com VexFlow)
-- **Phase:** 2 — **em execução / concluída** (Sistema de Workspaces, Seções e Sidebar de Notas)
+- **Phase:** 3 — **discussão concluída** (Integração Workspace e NoteEditor Estilo Notion)
 - **Mode:** yolo (config)
 
 ## Session continuity
 
-- **Stopped at:** Fase 2 implementada (WorkspaceSwitcher dinâmico, seções sem aninhamento, botões rápidos, ContextMenu e Drag & Drop)
-- **Resume from:** Verificação e testes da Fase 2
+- **Stopped at:** Discussão da Fase 3 concluída (`03-CONTEXT.md` gerado)
+- **Resume from:** Planejamento da Fase 3 (`/gsd-plan-phase 3`)
 
 ## Project reference
 
@@ -26,10 +26,9 @@ See: `.planning/PROJECT.md`
 ## Notes
 
 - Brownfield: Next.js + Editor.js + TanStack Query + shadcn-ui + Tailwind.
-- **Arquitetura:** Workspaces e Seções com persistência híbrida (API backend Go + fallback local em `localStorage`).
-- **Sidebar:** `WorkspaceSwitcher` dinâmico, árvore de notas com seções (profundidade 1), botões rápidos no footer e drag and drop nativo.
+- **Fase 3:** Edição dinâmica de notas na rota `/workspace` estilo Notion, remoção do EditorHeader, título editável inline em TitleWithBar, flush imediato no save ao alternar notas, sincronização de URL via `?noteId=`.
 
 ## Next action
 
-Executar verificação automatizada (`npm run lint` e `npm run build`) e validar os fluxos no navegador.
+Criar o plano de execução da Fase 3 (`/gsd-plan-phase 3`).
 
