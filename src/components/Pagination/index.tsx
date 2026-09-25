@@ -5,7 +5,6 @@ import { storage } from "@/lib/storage";
 import NoteCard from "../NoteCard";
 import Spinner from "../Spinner";
 import NotesPagination from "../NotesPagination";
-import CreateNoteCard from "../CardCreateNote";
 import { CardNewNote } from "../CardNewNote";
 import EmptyNotes from "../EmptyNotes";
 import { useWorkspace } from "@/contexts/workspace-context";
@@ -26,7 +25,7 @@ export default function PaginationDemo() {
 				.filter((n) => !n.workspaceId || n.workspaceId === activeWorkspace.id)
 				.sort((a, b) => b.updatedAt - a.updatedAt);
 		}
-	})
+	});
 
 	const prevModalState = useRef(isModalOpen);
 	useEffect(() => {
@@ -39,10 +38,9 @@ export default function PaginationDemo() {
 
 	if (isLoading) {
         return (
-            <div className="container mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
-                <p>Carregando notas...</p>
-                <Spinner />
+            <div className="container mx-auto p-4 flex flex-col items-center justify-center gap-4 py-16">
+                <p className="text-muted-foreground">Carregando notas...</p>
+                <Spinner className="size-6 text-primary" />
             </div>
         );
     }
@@ -58,29 +56,10 @@ export default function PaginationDemo() {
 
 	const allNotes = data || [];
     const index_inicial = (currentPage - 1) * itemsPerPage;
-    const index_final = index_inicial + itemsPerPage; // Correção do limite do slice
+    const index_final = index_inicial + itemsPerPage;
 
     const notasAtual = allNotes.slice(index_inicial, index_final);
     const totalPages = Math.ceil(allNotes.length / itemsPerPage);
-
-	if (isLoading) {
-		return (
-			<div className="container mx-auto p-4">
-				<h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
-				<p>Carregando notas...</p>
-				<Spinner />
-			</div>
-		)
-	}
-
-	if (isError) {
-		return (
-			<div className="container mx-auto p-4">
-				<h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
-				<p className="text-red-500">Erro ao carregar as notas!</p>
-			</div>
-		)
-	}
 
 	return (
         <div className="container mx-auto p-4">
@@ -93,16 +72,16 @@ export default function PaginationDemo() {
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <CreateNoteCard onClick={() => setIsModalOpen(true)} />
                         {notasAtual.map((note, index) => (
                             <NoteCard
                                 key={note.id}
+                                id={note.id}
                                 idx={index}
                                 title={note.title}
                                 description={note.description}
                                 lastUpdateDate={note.lastUpdateDate}
                                 lastUpdateTime={note.lastUpdateTime}
-                                href={note.href}
+                                href={`/workspace?noteId=${note.id}`}
                             />
                         ))}
                     </div>

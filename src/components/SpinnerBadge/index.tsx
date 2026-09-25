@@ -1,15 +1,18 @@
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 
 export function SpinnerBadge({
     isSaving,
     lastSaved,
+    className,
 }: {
     isSaving: boolean
     lastSaved?: Date | null
+    className?: string
 }) {
     return (
-        <div className="flex flex-col items-center justify-center gap-1 mb-8 [--radius:1.2rem]">
+        <div className={cn("flex flex-col items-center justify-center gap-1 mb-8 [--radius:1.2rem]", className)}>
             <div className="flex items-center justify-center gap-4">
                 {isSaving ? (
                     <Badge variant="secondary">

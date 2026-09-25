@@ -7,8 +7,6 @@ import {
   FileText,
   Folder,
   FolderOpen,
-  FolderPlus,
-  MoreVertical,
   Pencil,
   Trash2,
   MoveRight,
@@ -58,7 +56,7 @@ import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 export function NavWorkspaceTree() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentNoteId = searchParams.get("id");
+  const currentNoteId = searchParams.get("noteId") || searchParams.get("id");
 
   const {
     activeWorkspace,
@@ -114,13 +112,13 @@ export function NavWorkspaceTree() {
 
   // Abre nota no editor
   const handleOpenNote = (noteId: string) => {
-    router.push(`/editor?id=${noteId}`);
+    router.push(`/workspace?noteId=${noteId}`, { scroll: false });
   };
 
   // Criar nota dentro de uma seção
   const handleCreateNoteInSection = async (sectionId: string) => {
     const newNote = await createNote("Nova Nota", sectionId);
-    router.push(`/editor?id=${newNote.id}`);
+    router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
   };
 
   // Submissão do renomear nota
@@ -458,7 +456,7 @@ export function NavWorkspaceTree() {
           if (deletingNote) {
             await deleteNote(deletingNote.id);
             if (currentNoteId === deletingNote.id) {
-              router.push("/workspace");
+              router.push("/workspace", { scroll: false });
             }
           }
         }}

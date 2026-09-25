@@ -18,7 +18,7 @@ export function SidebarQuickActions() {
     try {
       setIsCreatingNote(true);
       const newNote = await createNote("Nova Nota");
-      router.push(`/editor?id=${newNote.id}`);
+      router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
     } catch (err) {
       console.error("Erro ao criar nova nota rápida:", err);
     } finally {

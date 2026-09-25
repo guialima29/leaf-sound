@@ -314,7 +314,7 @@ export const workspaceService = {
       updatedAt: Date.now(),
       lastUpdateDate: dateStr,
       lastUpdateTime: timeStr,
-      href: `/editor?id=${id}`,
+      href: `/workspace?noteId=${id}`,
     };
 
     if (typeof window !== "undefined") {

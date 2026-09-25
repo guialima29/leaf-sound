@@ -10,7 +10,7 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 - [x] **Phase 1: Contrato de dados e fundação técnica** — Padrão de custom tools, tipos TS, spike VexFlow no editor
 - [x] **Phase 2: Sistema de Workspaces, Seções e Sidebar de Notas** — WorkspaceSwitcher, seções não-aninhadas, botões rápidos, ContextMenu e Drag & Drop
-- [ ] **Phase 3: Integração Workspace e NoteEditor Estilo Notion** — NoteEditor no centro do Workspace, remoção do EditorHeader, título editável inline, navegação snappy
+- [x] **Phase 3: Integração Workspace e NoteEditor Estilo Notion** — NoteEditor no centro do Workspace, remoção do EditorHeader, título editável inline, navegação snappy
 - [ ] **Phase 4: Bloco de acordes** — Tool completa, render e persistência
 - [ ] **Phase 5: Tablatura e partitura** — Duas tools musicais com entrada MVP
 - [ ] **Phase 6: Autenticação e isolamento** — Clerk no frontend, chamadas à API Go, persistência por usuário no backend (fora deste repo)

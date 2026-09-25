@@ -79,7 +79,7 @@ export const storage = {
             updatedAt: Date.now(),
             lastUpdateDate: now.toLocaleDateString('pt-BR'),
             lastUpdateTime: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-            href: `/editor?id=${id}`
+            href: `/workspace?noteId=${id}`
         };
 
         notes.unshift(newNote); // Add to beginning

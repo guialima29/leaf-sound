@@ -29,7 +29,7 @@ export function CardNewNote({ onClick }: CardNewNoteProp) {
         if (!title) return;
 
         const newNote = storage.createNote(title, description);
-        router.push(`/editor?id=${newNote.id}`);
+        router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
     }
 
     return (
