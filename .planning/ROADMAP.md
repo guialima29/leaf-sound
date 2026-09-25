@@ -9,10 +9,10 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 ## Phases
 
 - [x] **Phase 1: Contrato de dados e fundação técnica** — Padrão de custom tools, tipos TS, spike VexFlow no editor
-- [ ] **Phase 2: Sistema de Workspaces, Seções e Sidebar de Notas** — WorkspaceSwitcher, seções não-aninhadas, botões rápidos, ContextMenu e Drag & Drop
-- [ ] **Phase 3: Bloco de acordes** — Tool completa, render e persistência
-- [ ] **Phase 4: Tablatura e partitura** — Duas tools musicais com entrada MVP
-- [ ] **Phase 5: Editor e ciclo de notas com blocos musicais** — Integração com blocos texto+música, favoritos, persistência completa
+- [x] **Phase 2: Sistema de Workspaces, Seções e Sidebar de Notas** — WorkspaceSwitcher, seções não-aninhadas, botões rápidos, ContextMenu e Drag & Drop
+- [ ] **Phase 3: Integração Workspace e NoteEditor Estilo Notion** — NoteEditor no centro do Workspace, remoção do EditorHeader, título editável inline, navegação snappy
+- [ ] **Phase 4: Bloco de acordes** — Tool completa, render e persistência
+- [ ] **Phase 5: Tablatura e partitura** — Duas tools musicais com entrada MVP
 - [ ] **Phase 6: Autenticação e isolamento** — Clerk no frontend, chamadas à API Go, persistência por usuário no backend (fora deste repo)
 - [ ] **Phase 7: Polimento, qualidade e CI** — UX, a11y, testes críticos; **lint + build obrigatórios** no fluxo de integração (**CI-01**)
 - [ ] **Phase 8: Segurança** — XSS, headers, validação de entrada, contrato anti-SQLi com Go, rate limiting/abuso, supply chain
@@ -60,20 +60,22 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 
 ---
 
-### Phase 3: Tablatura e partitura
-**Goal**: Tablatura e pauta como blocos separados, com entrada simplificada porém honesta.
+### Phase 3: Integração Workspace e NoteEditor Estilo Notion
+**Goal**: Experiência integrada estilo Notion na rota `/workspace`: sidebar à esquerda com seleção de notas que carrega dinamicamente o `NoteEditor` no centro, remoção do header antigo (`EditorHeader`), título editável inline preservando estilo `TitleWithBar`, flush imediato no save ao alternar notas, navegação snappy por URL (`?noteId=`) e visão condicional com grid de cards/estado vazio quando nenhuma nota estiver selecionada.
 
 **Depends on**: Phase 2
 
-**Requirements**: EDIT-02, EDIT-03
+**Requirements**: WORK-01, NOTE-01, NOTE-02, NOTE-04
 
 **Success Criteria**:
 
-1. Usuário adiciona bloco de tablatura e vê renderização VexFlow estável
-2. Usuário adiciona bloco de partitura (pauta) com trecho curto viável no MVP
-3. Ambos persistem no mesmo modelo de `OutputData` definido na Fase 1
+1. Clicar em uma nota na sidebar (`NavWorkspaceTree`) ou no grid abre a nota imediatamente no `NoteEditor` no centro de `/workspace`
+2. `EditorHeader` antigo é removido, mantendo `SpinnerBadge` e título editável inline com limite de 40 caracteres (`TitleWithBar`)
+3. Alternância entre notas realiza flush/salvamento imediato de alterações pendentes e exibe spinner de carregamento durante a montagem
+4. Rota `/workspace` sem nota selecionada exibe `EmptyNotes` (se 0 notas) ou grid de cards sem o card de criação avulso
+5. URL reflete a nota ativa (`/workspace?noteId=...`) e rota legada `/editor?id=...` redireciona para o workspace
 
-**Plans**: TBD
+**Plans**: 2 plans — `03-01-PLAN.md` (NoteEditor, TitleWithBar editável e ciclo de vida) e `03-02-PLAN.md` (Integração na `/workspace`, sidebar, cards e rotas)
 
 **UI hint**: yes
 
@@ -185,10 +187,10 @@ Entregar o **MVP “Notion para música”** no **frontend** (este repositório)
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Contrato de dados e fundação técnica | 3/3 | Complete | 2026-03-24 |
-| 2. Bloco de acordes | 0/TBD | Not started | - |
-| 3. Tablatura e partitura | 0/TBD | Not started | - |
-| 4. Workspace e ciclo de notas | 0/TBD | Not started | - |
-| 5. Autenticação e isolamento | 0/TBD | Not started | - |
+| 2. Sistema de Workspaces, Seções e Sidebar de Notas | 1/1 | Complete | 2026-09-24 |
+| 3. Integração Workspace e NoteEditor Estilo Notion | 0/2 | Not started | - |
+| 4. Bloco de acordes | 0/TBD | Not started | - |
+| 5. Tablatura e partitura | 0/TBD | Not started | - |
 | 6. Polimento, qualidade e CI | 0/TBD | Not started | - |
 | 7. Segurança | 0/TBD | Not started | - |
 | 8. Performance | 0/TBD | Not started | - |

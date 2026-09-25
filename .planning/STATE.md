@@ -5,13 +5,13 @@
 ## Current focus
 
 - **Milestone:** v1 MVP (Notion para música com VexFlow)
-- **Phase:** 3 — **discussão concluída** (Integração Workspace e NoteEditor Estilo Notion)
+- **Phase:** 3 — **planejamento concluído** (Integração Workspace e NoteEditor Estilo Notion)
 - **Mode:** yolo (config)
 
 ## Session continuity
 
-- **Stopped at:** Discussão da Fase 3 concluída (`03-CONTEXT.md` gerado)
-- **Resume from:** Planejamento da Fase 3 (`/gsd-plan-phase 3`)
+- **Stopped at:** Planos da Fase 3 criados (`03-01-PLAN.md` e `03-02-PLAN.md`)
+- **Resume from:** Execução da Fase 3 (`/gsd-execute-phase 3`)
 
 ## Project reference
 
@@ -26,9 +26,9 @@ See: `.planning/PROJECT.md`
 ## Notes
 
 - Brownfield: Next.js + Editor.js + TanStack Query + shadcn-ui + Tailwind.
-- **Fase 3:** Edição dinâmica de notas na rota `/workspace` estilo Notion, remoção do EditorHeader, título editável inline em TitleWithBar, flush imediato no save ao alternar notas, sincronização de URL via `?noteId=`.
+- **Fase 3:** Edição dinâmica de notas na rota `/workspace` estilo Notion, remoção do EditorHeader, título editável inline em TitleWithBar, flush imediato no save ao alternar notas, sincronização de URL via `?noteId=`. Planos divididos em 2 ondas (`03-01` componentes e `03-02` rotas/integração).
 
 ## Next action
 
-Criar o plano de execução da Fase 3 (`/gsd-plan-phase 3`).
+Executar a Fase 3 (`/gsd-execute-phase 3`).
 
