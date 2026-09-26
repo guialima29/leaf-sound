@@ -38,3 +38,4 @@ See: `.planning/PROJECT.md`
 ## Next action
 
 Avançar para a próxima fase do roadmap (`/gsd-next` ou `/gsd-plan-phase 4`).
+
