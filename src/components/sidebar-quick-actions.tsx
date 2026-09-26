@@ -35,17 +35,17 @@ export function SidebarQuickActions() {
 
   return (
     <>
-      <div className="px-2 py-1.5 flex items-center gap-1.5 border-t border-sidebar-border bg-sidebar-background">
+      <div className="px-2 py-1.5 flex flex-col items-center gap-1.5 border-t border-sidebar-border bg-sidebar-background">
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           size="sm"
           onClick={handleCreateNote}
           disabled={isCreatingNote}
-          className="flex-1 h-8 text-xs font-medium gap-1.5 justify-center shadow-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="flex-1 w-full h-8 p-1 hover:scale-101 text-xs font-medium gap-1.5 justify-center shadow-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           title="Criar nova nota na raiz da workspace"
         >
-          <FilePlus className="size-3.5 text-primary" />
+          <FilePlus className="size-3.5 text-white" />
           <span>+ Nota</span>
         </Button>
 
@@ -54,7 +54,7 @@ export function SidebarQuickActions() {
           variant="outline"
           size="sm"
           onClick={() => setIsSectionDialogOpen(true)}
-          className="flex-1 h-8 text-xs font-medium gap-1.5 justify-center shadow-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="flex-1 w-full h-8 p-1 hover:scale-101 text-xs font-medium gap-1.5 justify-center shadow-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           title="Criar nova seção de notas"
         >
           <FolderPlus className="size-3.5 text-primary" />
