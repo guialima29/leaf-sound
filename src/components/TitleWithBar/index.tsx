@@ -30,7 +30,7 @@ export default function TitleWithBar({
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full mt-5 ${className}`}>
       <div className="flex justify-center px-4">
         {editable ? (
           <input
