@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { OutputData } from "@editorjs/editorjs";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import TitleWithBar from "@/components/TitleWithBar";
 import TextEditor from "@/components/TextEditor";
 import Spinner from "@/components/Spinner";
@@ -91,14 +91,16 @@ interface NoteEditorBodyProps {
 }
 
 function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
-  const { notes, updateNote } = useWorkspace();
+  const { notes, updateNote, toggleFavorite } = useWorkspace();
   const editorData = initialNote.content;
   const [noteTitle, setNoteTitle] = useState(initialNote.title || "Nova Nota");
 
   // Acompanha renomeações externas (ex.: sidebar) sem reverter o que o usuário digita:
   // o "eco" do próprio updateNote do editor (lastSentTitle) é ignorado.
   // Padrão "ajustar estado durante o render" (sem setState em efeito).
-  const contextTitle = notes.find((n) => n.id === noteId)?.title;
+  const contextNote = notes.find((n) => n.id === noteId);
+  const contextTitle = contextNote?.title;
+  const isFavorite = contextNote?.isFavorite ?? false;
   const [prevContextTitle, setPrevContextTitle] = useState(contextTitle);
   const [lastSentTitle, setLastSentTitle] = useState<string | null>(null);
   if (contextTitle !== prevContextTitle) {
@@ -243,7 +245,25 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
             </Button>
           )}
         </div>
-        <div>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              toggleFavorite(noteId).catch((err) => {
+                console.error("Erro ao alterar favorito:", err);
+              });
+            }}
+            aria-label={isFavorite ? "Remover dos favoritos" : "Favoritar nota"}
+            aria-pressed={isFavorite}
+            title={isFavorite ? "Remover dos favoritos" : "Favoritar nota"}
+            className="size-8 cursor-pointer"
+          >
+            <Star
+              className={`size-4 ${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`}
+            />
+          </Button>
           <SpinnerBadge isSaving={isSaving} lastSaved={lastSaved} className="mb-0" />
         </div>
       </div>

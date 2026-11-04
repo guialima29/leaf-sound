@@ -19,6 +19,7 @@ interface WorkspaceContextType {
   createNote: (title: string, sectionId?: string | null) => Promise<WorkspaceNote>;
   renameNote: (id: string, newTitle: string) => Promise<WorkspaceNote>;
   updateNote: (id: string, patch: NoteUpdate) => Promise<WorkspaceNote>;
+  toggleFavorite: (noteId: string) => Promise<WorkspaceNote>;
   moveNoteToSection: (noteId: string, sectionId: string | null) => Promise<WorkspaceNote>;
   deleteNote: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -164,6 +165,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return updated;
   }, []);
 
+  // Alterna o favorito; não altera updatedAt (ver workspaceService.updateNote)
+  const toggleFavorite = useCallback(async (noteId: string) => {
+    const current = notes.find((n) => n.id === noteId);
+    return updateNote(noteId, { isFavorite: !current?.isFavorite });
+  }, [notes, updateNote]);
+
   const moveNoteToSection = useCallback(async (noteId: string, sectionId: string | null) => {
     const updated = await workspaceService.moveNoteToSection(noteId, sectionId);
     setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
@@ -192,6 +199,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         createNote,
         renameNote,
         updateNote,
+        toggleFavorite,
         moveNoteToSection,
         deleteNote,
         refresh,

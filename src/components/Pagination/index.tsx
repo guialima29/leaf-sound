@@ -13,9 +13,13 @@ export default function PaginationDemo() {
 	const router = useRouter();
 	const { notes, isLoading, createNote } = useWorkspace();
 
-	// Notas da workspace ativa (o contexto já filtra), mais recentes primeiro
+	// Notas da workspace ativa (o contexto já filtra): favoritas primeiro, depois mais recentes
 	const allNotes = useMemo(
-		() => [...notes].sort((a, b) => b.updatedAt - a.updatedAt),
+		() =>
+			[...notes].sort(
+				(a, b) =>
+					Number(!!b.isFavorite) - Number(!!a.isFavorite) || b.updatedAt - a.updatedAt
+			),
 		[notes]
 	);
 
@@ -66,6 +70,7 @@ export default function PaginationDemo() {
                                 lastUpdateDate={note.lastUpdateDate}
                                 lastUpdateTime={note.lastUpdateTime}
                                 href={`/workspace?noteId=${note.id}`}
+                                isFavorite={!!note.isFavorite}
                             />
                         ))}
                     </div>

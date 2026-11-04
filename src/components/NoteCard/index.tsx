@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { Button } from "../ui/button"
 
 interface NoteCardProps {
@@ -16,6 +17,7 @@ interface NoteCardProps {
     lastUpdateDate: string;
     lastUpdateTime: string;
     href?: string;
+    isFavorite?: boolean;
     idx: number;
 }
 
@@ -26,6 +28,7 @@ export default function NoteCard({
     lastUpdateDate,
     lastUpdateTime,
     href,
+    isFavorite = false,
     idx,
 }: NoteCardProps) {
     const noteUrl = id
@@ -38,7 +41,16 @@ export default function NoteCard({
                 <Image src="/note-img.png" alt="" width={300} height={200} />
             </CardHeader>
             <CardContent className="space-y-2">
-                <CardTitle className="text-lg font-semibold line-clamp-1">{title}</CardTitle>
+                <CardTitle className="text-lg font-semibold line-clamp-1 flex items-center gap-1.5">
+                    {isFavorite && (
+                        <Star
+                            className="size-4 shrink-0 fill-primary text-primary"
+                            role="img"
+                            aria-label="Nota favorita"
+                        />
+                    )}
+                    <span className="truncate">{title}</span>
+                </CardTitle>
                 <p className="max-w-[300px] max-h-[75px] line-clamp-3">{description}</p>
             </CardContent>
             <CardFooter className="flex flex-col space-y-3 w-full absolute bottom-2 justify-center items-center">

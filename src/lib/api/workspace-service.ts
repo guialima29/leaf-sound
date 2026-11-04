@@ -362,11 +362,14 @@ export const workspaceService = {
     if (index === -1) throw new Error("Nota não encontrada");
     if (!hasChanges) return all[index];
 
+    // Favoritar/desfavoritar não é edição de conteúdo: só atualiza as datas se algum
+    // outro campo (título, conteúdo, descrição) também estiver no patch.
+    const isEdit = Object.keys(normalized).some((k) => k !== "isFavorite");
+
     all[index] = {
       ...all[index],
       ...normalized,
-      updatedAt: Date.now(),
-      ...formatPtBrDate(),
+      ...(isEdit ? { updatedAt: Date.now(), ...formatPtBrDate() } : {}),
     };
 
     writeList(NOTES_STORAGE_KEY, all);
