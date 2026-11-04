@@ -7,17 +7,18 @@ import { ArrowBigLeft, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { CardDeleteNote } from "@/components/CardDeleteNote"
 import { useSearchParams, useRouter } from "next/navigation"
-import { storage } from "@/lib/storage"
+import { useWorkspace } from "@/contexts/workspace-context"
 
 export default function EditorHeader() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { deleteNote } = useWorkspace();
     const id = searchParams.get('id');
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (id) {
-            storage.deleteNote(id);
+            await deleteNote(id);
             router.push('/workspace');
         }
     }
