@@ -1,6 +1,7 @@
 import { QueryProvider } from "@/providers/query-provider";
 import "@/app/editor/editor-styles.css"
 import "./globals.css";
+import { libreCaslonText, poppins } from "@/fonts/fonts";
 
 export const metadata = {
 	title: "LeafSound",
@@ -13,9 +14,9 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="pt-br" suppressHydrationWarning>
+		<html lang="pt-br" className={`${libreCaslonText.variable} ${poppins.variable}`} suppressHydrationWarning>
 			<body suppressHydrationWarning
-				className={`antialiased`}
+				className="antialiased"
 			>
 				<QueryProvider>
 					{children}

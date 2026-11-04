@@ -41,8 +41,8 @@ export function HomeHowWorks() {
           {steps.map(({ number, icon: Icon, title, description }) => (
             <div key={title} className="relative text-center">
 
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#5DAA3B]/10">
-                <Icon className="h-8 w-8 text-[#5DAA3B]" />
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
+                <Icon className="h-8 w-8 text-primary" />
               </div>
               <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-primary">
                 Passo {number}

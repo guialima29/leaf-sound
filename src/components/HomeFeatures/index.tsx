@@ -66,7 +66,7 @@ export function HomeFeatures() {
               className="group rounded-xl border border-border bg-background p-6 transition-all hover:border-[#aaf789] hover:shadow-lg hover:shadow-primary/5"
             >
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[#cef5bd] transition-colors group-hover:bg-[#aaf789]">
-                <Icon className="h-6 w-6 text-[#5DAA3B]" />
+                <Icon className="h-6 w-6 text-primary" />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">
                 {title}
