@@ -395,6 +395,7 @@ export function NavWorkspaceTree() {
 
       {/* DIÁLOGO: RENOMEAR SEÇÃO */}
       <SectionCreateDialog
+        key={editingSection?.id ?? "closed"}
         isOpen={!!editingSection}
         onClose={() => setEditingSection(null)}
         initialName={editingSection?.name || ""}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import type { OutputData } from "@editorjs/editorjs"
 import "@/app/editor/editor-styles.css"
 
@@ -11,25 +11,22 @@ interface NoteEditorProps {
 
 type EditorInstance = {
     save: () => Promise<OutputData>
+    isReady?: Promise<void>
     destroy?: () => void
 }
 
 export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
     const editorRef = useRef<EditorInstance | null>(null)
-    const [isMounted, setIsMounted] = useState(false)
 
     const onChangeRef = useRef(onChange);
-
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
 
     useEffect(() => {
         onChangeRef.current = onChange
     }, [onChange])
 
     useEffect(() => {
-        if (!isMounted) return
+        // Evita criar o editor se o efeito foi limpo durante os imports assíncronos (Strict Mode)
+        let cancelled = false
 
         const initEditor = async () => {
             const EditorJS = (await import("@editorjs/editorjs")).default
@@ -39,6 +36,8 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
             const Paragraph = (await import("@editorjs/paragraph")).default
             const LeafMusicPartituraTool = (await import("@/lib/editorjs/tools/LeafMusicPartituraTool")).default
             const LeafMusicAcordesTool = (await import("@/lib/editorjs/tools/LeafMusicAcordesTool")).default
+
+            if (cancelled) return
 
             if (!editorRef.current) {
                 const editor = new EditorJS({
@@ -92,22 +91,20 @@ export default function TextEditor({ initialData, onChange }: NoteEditorProps) {
         initEditor()
 
         return () => {
-            if (editorRef.current && editorRef.current.destroy) {
-                editorRef.current.destroy()
-                editorRef.current = null
+            cancelled = true
+            const editor = editorRef.current
+            editorRef.current = null
+            if (!editor) return
+            if (editor.destroy) {
+                editor.destroy()
+            } else if (editor.isReady) {
+                // destroy só existe depois de isReady; destruir assim que o editor terminar de iniciar
+                editor.isReady.then(() => editor.destroy?.()).catch(() => {})
             }
         }
         // initialData aplicado só na criação; evitar re-init completo a cada mudança
         // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-once editor; idem padrão anterior
-    }, [isMounted])
-
-    if (!isMounted) {
-        return (
-            <div className="w-full max-w-4xl mx-auto min-h-[500px] border rounded-lg p-6">
-                Carregando editor...
-            </div>
-        )
-    }
+    }, [])
 
     return (
         <div className="w-full max-w-6xl mx-auto">

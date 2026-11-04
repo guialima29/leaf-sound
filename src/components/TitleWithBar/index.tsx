@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 export interface TitleWithBarProps {
   title: string;
   editable?: boolean;
@@ -17,16 +15,8 @@ export default function TitleWithBar({
   maxLength = 40,
   className = "",
 }: TitleWithBarProps) {
-  const [currentTitle, setCurrentTitle] = useState(title);
-
-  useEffect(() => {
-    setCurrentTitle(title);
-  }, [title]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCurrentTitle(val);
-    onTitleChange?.(val);
+    onTitleChange?.(e.target.value);
   };
 
   return (
@@ -35,7 +25,7 @@ export default function TitleWithBar({
         {editable ? (
           <input
             type="text"
-            value={currentTitle}
+            value={title}
             onChange={handleChange}
             maxLength={maxLength}
             placeholder="Título da nota"

@@ -6,22 +6,39 @@ import { ArrowLeft } from "lucide-react";
 import TitleWithBar from "@/components/TitleWithBar";
 import TextEditor from "@/components/TextEditor";
 import { SpinnerBadge } from "@/components/SpinnerBadge";
-import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { storage } from "@/lib/storage";
 import { useWorkspace } from "@/contexts/workspace-context";
+import type { WorkspaceNote } from "@/types/workspace";
 
 interface NoteEditorProps {
   noteId: string;
   onBack?: () => void;
 }
 
+// Leitura única da nota (síncrona). O componente é recriado a cada troca de nota
+// via key={noteId} em workspace/page.tsx, então não precisa re-sincronizar.
+function loadInitialNote(
+  noteId: string,
+  notes: WorkspaceNote[]
+): { title: string; content?: OutputData } {
+  try {
+    const note = storage.getNote(noteId) ?? notes.find((n) => n.id === noteId);
+    if (note) {
+      return { title: note.title || "Nova Nota", content: note.content };
+    }
+  } catch (err) {
+    console.error("Erro ao carregar nota:", err);
+  }
+  return { title: "Nova Nota", content: undefined };
+}
+
 export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
   const { notes, renameNote } = useWorkspace();
-  const [editorData, setEditorData] = useState<OutputData | undefined>();
-  const [noteTitle, setNoteTitle] = useState("Nova Nota");
+  const [initialNote] = useState(() => loadInitialNote(noteId, notes));
+  const editorData = initialNote.content;
+  const [noteTitle, setNoteTitle] = useState(initialNote.title);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const pendingDataRef = useRef<OutputData | null>(null);
@@ -69,7 +86,7 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
     }
   }, []);
 
-  // Flush on unmount or when noteId changes
+  // Flush on unmount (a troca de nota desmonta o componente via key={noteId})
   useEffect(() => {
     return () => {
       if (pendingDataRef.current && currentNoteIdRef.current) {
@@ -103,31 +120,6 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
       }
     };
   }, [noteId]);
-
-  // Load note data when noteId changes
-  useEffect(() => {
-    setIsLoading(true);
-    try {
-      const note = storage.getNote(noteId);
-      if (note) {
-        setNoteTitle(note.title || "Nova Nota");
-        setEditorData(note.content);
-      } else {
-        const wsNote = notes.find((n) => n.id === noteId);
-        if (wsNote) {
-          setNoteTitle(wsNote.title || "Nova Nota");
-          setEditorData(wsNote.content);
-        } else {
-          setNoteTitle("Nova Nota");
-          setEditorData(undefined);
-        }
-      }
-    } catch (err) {
-      console.error("Erro ao carregar nota:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [noteId, notes]);
 
   // Handle editor text changes with 3s debounce
   const handleChange = useCallback(
@@ -167,15 +159,6 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
     },
     [noteId, renameNote]
   );
-
-  if (isLoading) {
-    return (
-      <div className="min-h-[400px] flex flex-col justify-center items-center gap-3 py-16">
-        <Spinner className="size-8 text-primary" />
-        <span className="text-sm text-muted-foreground">Carregando nota...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full flex flex-col pb-16">

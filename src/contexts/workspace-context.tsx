@@ -47,8 +47,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Carrega workspaces iniciais
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
+  const loadAll = useCallback(async () => {
     try {
       const wsList = await workspaceService.getWorkspaces();
       setWorkspaces(wsList);
@@ -71,9 +70,17 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadWorkspaceData]);
 
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    await loadAll();
+  }, [loadAll]);
+
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    // setState só acontece depois do await dentro de loadAll (isLoading já começa true)
+    void (async () => {
+      await loadAll();
+    })();
+  }, [loadAll]);
 
   const switchWorkspace = useCallback((workspaceId: string) => {
     const target = workspaces.find((w) => w.id === workspaceId);
