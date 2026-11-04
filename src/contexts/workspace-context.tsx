@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Workspace, Section, WorkspaceNote } from "@/types/workspace";
-import { workspaceService } from "@/lib/api/workspace-service";
+import { workspaceService, type NoteUpdate } from "@/lib/api/workspace-service";
 
 interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
@@ -18,6 +18,7 @@ interface WorkspaceContextType {
   deleteSection: (id: string, moveNotesToRoot?: boolean) => Promise<void>;
   createNote: (title: string, sectionId?: string | null) => Promise<WorkspaceNote>;
   renameNote: (id: string, newTitle: string) => Promise<WorkspaceNote>;
+  updateNote: (id: string, patch: NoteUpdate) => Promise<WorkspaceNote>;
   moveNoteToSection: (noteId: string, sectionId: string | null) => Promise<WorkspaceNote>;
   deleteNote: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -156,6 +157,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return updated;
   }, []);
 
+  const updateNote = useCallback(async (id: string, patch: NoteUpdate) => {
+    const updated = await workspaceService.updateNote(id, patch);
+    // Mescla para não perder campos (ex.: content) caso a API devolva a nota parcial
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
+    return updated;
+  }, []);
+
   const moveNoteToSection = useCallback(async (noteId: string, sectionId: string | null) => {
     const updated = await workspaceService.moveNoteToSection(noteId, sectionId);
     setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
@@ -183,6 +191,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         deleteSection,
         createNote,
         renameNote,
+        updateNote,
         moveNoteToSection,
         deleteNote,
         refresh,

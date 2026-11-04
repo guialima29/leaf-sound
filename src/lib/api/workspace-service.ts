@@ -6,6 +6,28 @@ const SECTIONS_STORAGE_KEY = "leaf-sound-sections";
 const NOTES_STORAGE_KEY = "leaf-sound-notes";
 const ACTIVE_WORKSPACE_KEY = "leaf-sound-active-workspace-id";
 
+// Lê uma lista salva no localStorage (vazia se a chave não existir ou fora do navegador)
+function readList<T>(key: string): T[] {
+  if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem(key);
+  return raw ? (JSON.parse(raw) as T[]) : [];
+}
+
+function writeList<T>(key: string, list: T[]): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(key, JSON.stringify(list));
+}
+
+// Data e hora no formato pt-BR usado em lastUpdateDate / lastUpdateTime
+function formatPtBrDate(date: Date = new Date()): { lastUpdateDate: string; lastUpdateTime: string } {
+  return {
+    lastUpdateDate: date.toLocaleDateString("pt-BR"),
+    lastUpdateTime: date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+export type NoteUpdate = Partial<Pick<WorkspaceNote, "title" | "content" | "description" | "isFavorite">>;
+
 // Inicializa dados padrão e migra notas legadas se necessário
 function initializeLocalStorage(): void {
   if (typeof window === "undefined") return;
@@ -74,8 +96,7 @@ export const workspaceService = {
 
     if (typeof window === "undefined") return [];
     initializeLocalStorage();
-    const raw = localStorage.getItem(WORKSPACES_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return readList<Workspace>(WORKSPACES_STORAGE_KEY);
   },
 
   async createWorkspace(name: string, description?: string): Promise<Workspace> {
@@ -88,7 +109,7 @@ export const workspaceService = {
         // Atualiza cache local
         if (typeof window !== "undefined") {
           const list = await this.getWorkspaces();
-          localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify([created, ...list]));
+          writeList(WORKSPACES_STORAGE_KEY, [created, ...list]);
         }
         return created;
       } catch (err) {
@@ -107,8 +128,7 @@ export const workspaceService = {
 
     if (typeof window !== "undefined") {
       const list = await this.getWorkspaces();
-      const updated = [newWs, ...list];
-      localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify(updated));
+      writeList(WORKSPACES_STORAGE_KEY, [newWs, ...list]);
     }
 
     return newWs;
@@ -125,21 +145,11 @@ export const workspaceService = {
 
     if (typeof window !== "undefined") {
       const list = await this.getWorkspaces();
-      const filtered = list.filter((w) => w.id !== id);
-      localStorage.setItem(WORKSPACES_STORAGE_KEY, JSON.stringify(filtered));
+      writeList(WORKSPACES_STORAGE_KEY, list.filter((w) => w.id !== id));
 
       // Remove seções e notas associadas
-      const sectionsRaw = localStorage.getItem(SECTIONS_STORAGE_KEY);
-      if (sectionsRaw) {
-        const sections: Section[] = JSON.parse(sectionsRaw);
-        localStorage.setItem(SECTIONS_STORAGE_KEY, JSON.stringify(sections.filter((s) => s.workspaceId !== id)));
-      }
-
-      const notesRaw = localStorage.getItem(NOTES_STORAGE_KEY);
-      if (notesRaw) {
-        const notes: WorkspaceNote[] = JSON.parse(notesRaw);
-        localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notes.filter((n) => n.workspaceId !== id)));
-      }
+      writeList(SECTIONS_STORAGE_KEY, readList<Section>(SECTIONS_STORAGE_KEY).filter((s) => s.workspaceId !== id));
+      writeList(NOTES_STORAGE_KEY, readList<WorkspaceNote>(NOTES_STORAGE_KEY).filter((n) => n.workspaceId !== id));
     }
   },
 
@@ -155,10 +165,7 @@ export const workspaceService = {
       }
     }
 
-    if (typeof window === "undefined") return [];
-    const raw = localStorage.getItem(SECTIONS_STORAGE_KEY);
-    const allSections: Section[] = raw ? JSON.parse(raw) : [];
-    return allSections
+    return readList<Section>(SECTIONS_STORAGE_KEY)
       .filter((s) => s.workspaceId === workspaceId)
       .sort((a, b) => a.order - b.order);
   },
@@ -189,10 +196,9 @@ export const workspaceService = {
     };
 
     if (typeof window !== "undefined") {
-      const raw = localStorage.getItem(SECTIONS_STORAGE_KEY);
-      const all: Section[] = raw ? JSON.parse(raw) : [];
+      const all = readList<Section>(SECTIONS_STORAGE_KEY);
       all.push(newSection);
-      localStorage.setItem(SECTIONS_STORAGE_KEY, JSON.stringify(all));
+      writeList(SECTIONS_STORAGE_KEY, all);
     }
 
     return newSection;
@@ -213,8 +219,7 @@ export const workspaceService = {
     }
 
     if (typeof window === "undefined") throw new Error("Window não disponível");
-    const raw = localStorage.getItem(SECTIONS_STORAGE_KEY);
-    const all: Section[] = raw ? JSON.parse(raw) : [];
+    const all = readList<Section>(SECTIONS_STORAGE_KEY);
     const index = all.findIndex((s) => s.id === sectionId);
     if (index === -1) throw new Error("Seção não encontrada");
 
@@ -224,7 +229,7 @@ export const workspaceService = {
       updatedAt: Date.now(),
     };
 
-    localStorage.setItem(SECTIONS_STORAGE_KEY, JSON.stringify(all));
+    writeList(SECTIONS_STORAGE_KEY, all);
     return all[index];
   },
 
@@ -242,14 +247,11 @@ export const workspaceService = {
     if (typeof window === "undefined") return;
 
     // Remove a seção
-    const raw = localStorage.getItem(SECTIONS_STORAGE_KEY);
-    const all: Section[] = raw ? JSON.parse(raw) : [];
-    localStorage.setItem(SECTIONS_STORAGE_KEY, JSON.stringify(all.filter((s) => s.id !== sectionId)));
+    writeList(SECTIONS_STORAGE_KEY, readList<Section>(SECTIONS_STORAGE_KEY).filter((s) => s.id !== sectionId));
 
     // Atualiza notas que estavam nessa seção
-    const notesRaw = localStorage.getItem(NOTES_STORAGE_KEY);
-    if (notesRaw) {
-      const notes: WorkspaceNote[] = JSON.parse(notesRaw);
+    const notes = readList<WorkspaceNote>(NOTES_STORAGE_KEY);
+    if (notes.length > 0) {
       const updatedNotes = notes.map((n) => {
         if (n.sectionId === sectionId) {
           return {
@@ -259,7 +261,7 @@ export const workspaceService = {
         }
         return n;
       });
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(moveNotesToRoot ? updatedNotes : updatedNotes.filter((n) => n.sectionId !== sectionId)));
+      writeList(NOTES_STORAGE_KEY, moveNotesToRoot ? updatedNotes : updatedNotes.filter((n) => n.sectionId !== sectionId));
     }
   },
 
@@ -277,19 +279,13 @@ export const workspaceService = {
 
     if (typeof window === "undefined") return [];
     initializeLocalStorage();
-    const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-    const allNotes: WorkspaceNote[] = raw ? JSON.parse(raw) : [];
-    return allNotes
+    return readList<WorkspaceNote>(NOTES_STORAGE_KEY)
       .filter((n) => n.workspaceId === workspaceId)
       .sort((a, b) => b.updatedAt - a.updatedAt);
   },
 
   async createNote(workspaceId: string, title: string, sectionId?: string | null): Promise<WorkspaceNote> {
     if (!workspaceId) throw new Error("workspaceId é obrigatório");
-
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("pt-BR");
-    const timeStr = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
     if (process.env.NEXT_PUBLIC_API_URL) {
       try {
@@ -312,50 +308,73 @@ export const workspaceService = {
       content: undefined,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      lastUpdateDate: dateStr,
-      lastUpdateTime: timeStr,
+      ...formatPtBrDate(),
       href: `/workspace?noteId=${id}`,
     };
 
     if (typeof window !== "undefined") {
-      const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-      const all: WorkspaceNote[] = raw ? JSON.parse(raw) : [];
+      const all = readList<WorkspaceNote>(NOTES_STORAGE_KEY);
       all.unshift(newNote);
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all));
+      writeList(NOTES_STORAGE_KEY, all);
     }
 
     return newNote;
   },
 
-  async renameNote(noteId: string, newTitle: string): Promise<WorkspaceNote> {
+  async getNote(noteId: string): Promise<WorkspaceNote | undefined> {
     if (process.env.NEXT_PUBLIC_API_URL) {
+      try {
+        return await apiClient<WorkspaceNote>(`/api/notes/${noteId}`);
+      } catch (err) {
+        console.warn("Falha ao buscar nota da API remota, usando cache local:", err);
+      }
+    }
+
+    if (typeof window === "undefined") return undefined;
+    initializeLocalStorage();
+    return readList<WorkspaceNote>(NOTES_STORAGE_KEY).find((n) => n.id === noteId);
+  },
+
+  // Atualização parcial de uma nota (título, conteúdo, descrição, favorito).
+  // Regra única de título: título vazio/só espaços mantém o anterior (nunca é gravado em branco).
+  async updateNote(noteId: string, patch: NoteUpdate): Promise<WorkspaceNote> {
+    const normalized: NoteUpdate = {};
+    if (patch.title !== undefined && patch.title.trim()) normalized.title = patch.title.trim();
+    if (patch.content !== undefined) normalized.content = patch.content;
+    if (patch.description !== undefined) normalized.description = patch.description;
+    if (patch.isFavorite !== undefined) normalized.isFavorite = patch.isFavorite;
+    const hasChanges = Object.keys(normalized).length > 0;
+
+    if (hasChanges && process.env.NEXT_PUBLIC_API_URL) {
       try {
         return await apiClient<WorkspaceNote>(`/api/notes/${noteId}`, {
           method: "PATCH",
-          body: JSON.stringify({ title: newTitle }),
+          body: JSON.stringify(normalized),
         });
       } catch (err) {
-        console.warn("Falha ao renomear nota na API, usando local:", err);
+        console.warn("Falha ao atualizar nota na API, usando local:", err);
       }
     }
 
     if (typeof window === "undefined") throw new Error("Window indisponível");
-    const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-    const all: WorkspaceNote[] = raw ? JSON.parse(raw) : [];
+    const all = readList<WorkspaceNote>(NOTES_STORAGE_KEY);
     const index = all.findIndex((n) => n.id === noteId);
     if (index === -1) throw new Error("Nota não encontrada");
+    if (!hasChanges) return all[index];
 
-    const now = new Date();
     all[index] = {
       ...all[index],
-      title: newTitle.trim() || all[index].title,
+      ...normalized,
       updatedAt: Date.now(),
-      lastUpdateDate: now.toLocaleDateString("pt-BR"),
-      lastUpdateTime: now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+      ...formatPtBrDate(),
     };
 
-    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all));
+    writeList(NOTES_STORAGE_KEY, all);
     return all[index];
+  },
+
+  async renameNote(noteId: string, newTitle: string): Promise<WorkspaceNote> {
+    return this.updateNote(noteId, { title: newTitle });
   },
 
   async moveNoteToSection(noteId: string, sectionId: string | null): Promise<WorkspaceNote> {
@@ -371,8 +390,7 @@ export const workspaceService = {
     }
 
     if (typeof window === "undefined") throw new Error("Window indisponível");
-    const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-    const all: WorkspaceNote[] = raw ? JSON.parse(raw) : [];
+    const all = readList<WorkspaceNote>(NOTES_STORAGE_KEY);
     const index = all.findIndex((n) => n.id === noteId);
     if (index === -1) throw new Error("Nota não encontrada");
 
@@ -382,7 +400,7 @@ export const workspaceService = {
       updatedAt: Date.now(),
     };
 
-    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all));
+    writeList(NOTES_STORAGE_KEY, all);
     return all[index];
   },
 
@@ -396,9 +414,7 @@ export const workspaceService = {
     }
 
     if (typeof window !== "undefined") {
-      const raw = localStorage.getItem(NOTES_STORAGE_KEY);
-      const all: WorkspaceNote[] = raw ? JSON.parse(raw) : [];
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(all.filter((n) => n.id !== noteId)));
+      writeList(NOTES_STORAGE_KEY, readList<WorkspaceNote>(NOTES_STORAGE_KEY).filter((n) => n.id !== noteId));
     }
   },
 
