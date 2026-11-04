@@ -1,16 +1,31 @@
+import type { BlockAPI, BlockToolConstructorOptions } from "@editorjs/editorjs"
 import {
   createDefaultLeafMusicAcordesData,
   isLeafMusicAcordesData,
   type LeafMusicAcordesData,
   type ChordPosition,
 } from "@/types/editor-music"
+import { findGuitarChord, normalizeChordName } from "@/lib/editorjs/chords/guitar-chords"
 
-interface LeafMusicAcordesToolConstructor {
-  data?: Record<string, unknown>
+const STRING_COUNT = 6
+const MAX_FRET = 24
+const MAX_START_FRET = 12
+
+// Ordem em que o modal mostra as cordas: da 6 (Mi grave) para a 1 (Mi agudo)
+const STRING_LABELS: Record<number, string> = {
+  6: "6 (Mi grave)",
+  5: "5 (Lá)",
+  4: "4 (Ré)",
+  3: "3 (Sol)",
+  2: "2 (Si)",
+  1: "1 (Mi agudo)",
 }
 
 export default class LeafMusicAcordesTool {
   private data: LeafMusicAcordesData
+  private block?: BlockAPI
+  // Fecha o modal "Personalizar" aberto (se houver), removendo seus listeners
+  private closeModal: (() => void) | null = null
 
   static get toolbox() {
     return {
@@ -19,7 +34,8 @@ export default class LeafMusicAcordesTool {
     }
   }
 
-  constructor({ data }: LeafMusicAcordesToolConstructor) {
+  constructor({ data, block }: Partial<BlockToolConstructorOptions<Record<string, unknown>>>) {
+    this.block = block
     if (data && isLeafMusicAcordesData(data)) {
       this.data = data
     } else {
@@ -64,6 +80,17 @@ export default class LeafMusicAcordesTool {
     inputRow.appendChild(input)
     inputRow.appendChild(addBtn)
 
+    // Aviso de acorde não reconhecido, logo abaixo do input
+    const messageDiv = document.createElement("div")
+    messageDiv.className = "leaf-music-acordes__message"
+    messageDiv.setAttribute("role", "alert")
+    messageDiv.hidden = true
+
+    const clearMessage = () => {
+      messageDiv.hidden = true
+      messageDiv.textContent = ""
+    }
+
     const customBtn = document.createElement("button")
     customBtn.className = "leaf-music-acordes__btn leaf-music-acordes__btn--custom"
     customBtn.textContent = "Personalizar Acorde (Modal)"
@@ -75,6 +102,7 @@ export default class LeafMusicAcordesTool {
     previewDiv.className = "leaf-music-acordes__preview"
 
     editorDiv.appendChild(inputRow)
+    editorDiv.appendChild(messageDiv)
     editorDiv.appendChild(customBtn)
     editorDiv.appendChild(chordsListDiv)
 
@@ -161,6 +189,7 @@ export default class LeafMusicAcordesTool {
           this.data.payload.chords.splice(index, 1)
           updateChordsList()
           renderChords()
+          this.block?.dispatchChange()
         }
 
         chordItem.appendChild(nameSpan)
@@ -169,54 +198,10 @@ export default class LeafMusicAcordesTool {
       })
     }
 
-    const parseChordString = (chordName: string): ChordPosition[] => {
-      const chordMap: Record<string, ChordPosition[]> = {
-        C: [[1, 0], [2, 1], [3, 0], [4, 2], [5, 3], [6, "x"]],
-        Cm: [[1, "x"], [2, 3], [3, 3], [4, 1], [5, 2], [6, "x"]],
-        C7: [[1, "x"], [2, 1], [3, 0], [4, 2], [5, 3], [6, "x"]],
-        D: [[1, 2], [2, 3], [3, 2], [4, 0], [5, "x"], [6, "x"]],
-        Dm: [[1, "x"], [2, 1], [3, 2], [4, 2], [5, "x"], [6, "x"]],
-        D7: [[1, 2], [2, 1], [3, 2], [4, 0], [5, "x"], [6, "x"]],
-        E: [[1, 0], [2, 0], [3, 1], [4, 2], [5, 2], [6, 0]],
-        Em: [[1, 0], [2, 0], [3, 0], [4, 2], [5, 2], [6, 0]],
-        E7: [[1, 0], [2, 0], [3, 1], [4, 0], [5, 2], [6, 0]],
-        F: [[1, 1], [2, 1], [3, 1], [4, 3], [5, 3], [6, 1]],
-        Fm: [[1, "x"], [2, 1], [3, 1], [4, 1], [5, 3], [6, 1]],
-        F7: [[1, 1], [2, 1], [3, 1], [4, 1], [5, 3], [6, 1]],
-        G: [[1, 3], [2, 0], [3, 0], [4, 0], [5, 2], [6, 3]],
-        Gm: [[1, 3], [2, 5], [3, 3], [4, 3], [5, 3], [6, 3]],
-        G7: [[1, 3], [2, 0], [3, 0], [4, 0], [5, 1], [6, 3]],
-        A: [[1, 0], [2, 2], [3, 2], [4, 1], [5, 0], [6, "x"]],
-        Am: [[1, 0], [2, 0], [3, 2], [4, 2], [5, 0], [6, "x"]],
-        A7: [[1, 0], [2, 2], [3, 0], [4, 1], [5, 0], [6, "x"]],
-        B: [[1, "x"], [2, 4], [3, 4], [4, 3], [5, 2], [6, "x"]],
-        Bm: [[1, "x"], [2, 2], [3, 4], [4, 4], [5, 2], [6, "x"]],
-        B7: [[1, "x"], [2, 4], [3, 2], [4, 1], [5, 2], [6, "x"]],
-      }
+    const openCustomModal = (presetName = "") => {
+      // Só um modal por vez
+      this.closeModal?.()
 
-      const normalized = chordName.trim()
-      return chordMap[normalized] || [[1, "x"], [2, "x"], [3, "x"], [4, "x"], [5, "x"], [6, "x"]]
-    }
-
-    addBtn.addEventListener("click", () => {
-      const chordName = input.value.trim()
-      if (!chordName) return
-
-      const chordPositions = parseChordString(chordName)
-
-      this.data.payload.chords.push({
-        name: chordName,
-        chord: chordPositions,
-        barres: [],
-        position: 1,
-      })
-
-      input.value = ""
-      updateChordsList()
-      renderChords()
-    })
-
-    const openCustomModal = () => {
       const modal = document.createElement("div")
       modal.className = "leaf-music-acordes__modal"
 
@@ -238,37 +223,41 @@ export default class LeafMusicAcordesTool {
       nameInput.type = "text"
       nameInput.placeholder = "Ex: Cm"
       nameInput.className = "leaf-music-acordes__modal-input"
+      nameInput.value = presetName
 
       nameInputRow.appendChild(nameLabel)
       nameInputRow.appendChild(nameInput)
 
       const stringsLabel = document.createElement("div")
       stringsLabel.className = "leaf-music-acordes__modal-label"
-      stringsLabel.textContent = "Posição de cada corda (0 = aberto, x = muted, número = casa):"
+      stringsLabel.textContent = `Casa de cada corda (x = abafada, 0 = solta, 1 a ${MAX_FRET} = casa):`
 
       const stringsContainer = document.createElement("div")
       stringsContainer.className = "leaf-music-acordes__modal-strings"
 
-      const stringInputs: HTMLInputElement[] = []
+      // De cima para baixo: corda 6 (Mi grave) até corda 1 (Mi agudo).
+      // O número da corda segue a convenção do VexChords (1 = Mi agudo).
+      const stringInputs: Array<{ stringNumber: number; input: HTMLInputElement }> = []
 
-      for (let i = 0; i < 6; i++) {
+      for (let stringNumber = STRING_COUNT; stringNumber >= 1; stringNumber--) {
         const stringWrapper = document.createElement("div")
         stringWrapper.className = "leaf-music-acordes__modal-string-wrapper"
 
         const stringLabel = document.createElement("div")
         stringLabel.className = "leaf-music-acordes__modal-string-label"
-        stringLabel.textContent = `Corda ${i + 1}`
+        stringLabel.textContent = `Corda ${STRING_LABELS[stringNumber]}`
 
         const stringInput = document.createElement("input")
         stringInput.type = "text"
         stringInput.placeholder = "0"
         stringInput.className = "leaf-music-acordes__modal-string-input"
         stringInput.value = "0"
+        stringInput.setAttribute("aria-label", `Corda ${STRING_LABELS[stringNumber]}`)
 
         stringWrapper.appendChild(stringLabel)
         stringWrapper.appendChild(stringInput)
         stringsContainer.appendChild(stringWrapper)
-        stringInputs.push(stringInput)
+        stringInputs.push({ stringNumber, input: stringInput })
       }
 
       const positionRow = document.createElement("div")
@@ -281,12 +270,28 @@ export default class LeafMusicAcordesTool {
       const positionInput = document.createElement("input")
       positionInput.type = "number"
       positionInput.min = "1"
-      positionInput.max = "12"
+      positionInput.max = String(MAX_START_FRET)
       positionInput.value = "1"
       positionInput.className = "leaf-music-acordes__modal-position-input"
 
       positionRow.appendChild(positionLabel)
       positionRow.appendChild(positionInput)
+
+      const errorDiv = document.createElement("div")
+      errorDiv.className = "leaf-music-acordes__modal-error"
+      errorDiv.setAttribute("role", "alert")
+      errorDiv.hidden = true
+
+      const showError = (message: string, field?: HTMLInputElement) => {
+        errorDiv.textContent = message
+        errorDiv.hidden = false
+        field?.focus()
+      }
+
+      const clearError = () => {
+        errorDiv.hidden = true
+        errorDiv.textContent = ""
+      }
 
       const buttonsRow = document.createElement("div")
       buttonsRow.className = "leaf-music-acordes__modal-buttons"
@@ -307,53 +312,158 @@ export default class LeafMusicAcordesTool {
       modalContent.appendChild(stringsLabel)
       modalContent.appendChild(stringsContainer)
       modalContent.appendChild(positionRow)
+      modalContent.appendChild(errorDiv)
       modalContent.appendChild(buttonsRow)
       modal.appendChild(modalContent)
       document.body.appendChild(modal)
 
-      saveBtn.addEventListener("click", () => {
-        const chordName = nameInput.value.trim() || "Custom"
-        const chordPositions: ChordPosition[] = stringInputs.map((inp, idx) => {
-          const value = inp.value.trim().toLowerCase()
-          let fretValue: number | string = 0
-          if (value === "x") {
-            fretValue = "x"
-          } else {
-            fretValue = parseInt(value, 10) || 0
-          }
-          return [idx + 1, fretValue] as ChordPosition
-        })
+      // O modal fica em document.body, fora do wrapper do Editor.js, e o Editor.js
+      // escuta keydown em captura no document (repassa Tab, Delete etc. ao bloco
+      // atual). Um stopPropagation no input chegaria tarde demais, então o
+      // isolamento é feito em captura na window, que roda antes: enquanto o modal
+      // está aberto nenhuma tecla chega ao Editor.js. Sem preventDefault, a
+      // digitação nos campos continua normal. Esc fecha e Enter (em um campo,
+      // fora de composição IME) salva.
+      const onKeydown = (e: KeyboardEvent) => {
+        e.stopPropagation()
+        if (e.isComposing) return
+        if (e.key === "Escape") {
+          e.preventDefault()
+          close()
+        } else if (
+          e.key === "Enter" &&
+          e.target instanceof HTMLInputElement &&
+          modal.contains(e.target)
+        ) {
+          e.preventDefault()
+          save()
+        }
+      }
 
-        const position = parseInt(positionInput.value, 10) || 1
+      let closed = false
+      const close = () => {
+        if (closed) return
+        closed = true
+        window.removeEventListener("keydown", onKeydown, true)
+        modal.remove()
+        if (this.closeModal === close) this.closeModal = null
+      }
+
+      const save = () => {
+        clearError()
+
+        const chordPositions: ChordPosition[] = []
+        for (const { stringNumber, input: stringInput } of stringInputs) {
+          const value = stringInput.value.trim().toLowerCase()
+          if (value === "x") {
+            chordPositions.push([stringNumber, "x"])
+            continue
+          }
+          const fret = /^\d+$/.test(value) ? parseInt(value, 10) : NaN
+          if (!(fret >= 0 && fret <= MAX_FRET)) {
+            showError(
+              `Corda ${STRING_LABELS[stringNumber]}: use "x" ou um número inteiro de 0 a ${MAX_FRET}.`,
+              stringInput,
+            )
+            return
+          }
+          chordPositions.push([stringNumber, fret])
+        }
+
+        const positionValue = positionInput.value.trim()
+        const position = /^\d+$/.test(positionValue) ? parseInt(positionValue, 10) : NaN
+        if (!(position >= 1 && position <= MAX_START_FRET)) {
+          showError(`Casa inicial: use um número inteiro de 1 a ${MAX_START_FRET}.`, positionInput)
+          return
+        }
+
+        // Salva na convenção do VexChords: corda 1 (Mi agudo) primeiro
+        chordPositions.sort((a, b) => a[0] - b[0])
 
         this.data.payload.chords.push({
-          name: chordName,
+          name: nameInput.value.trim() || "Custom",
           chord: chordPositions,
           barres: [],
-          position: position,
+          position,
         })
 
-        document.body.removeChild(modal)
+        close()
+        clearMessage()
         updateChordsList()
         renderChords()
-      })
+        this.block?.dispatchChange()
+      }
 
-      cancelBtn.addEventListener("click", () => {
-        document.body.removeChild(modal)
-      })
+      this.closeModal = close
+      window.addEventListener("keydown", onKeydown, true)
 
+      saveBtn.addEventListener("click", save)
+      cancelBtn.addEventListener("click", close)
       modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-          document.body.removeChild(modal)
-        }
+        if (e.target === modal) close()
       })
+      modal.addEventListener("input", clearError)
+
+      if (presetName) {
+        stringInputs[0].input.focus()
+        stringInputs[0].input.select()
+      } else {
+        nameInput.focus()
+      }
     }
 
-    customBtn.addEventListener("click", openCustomModal)
+    const showUnknownMessage = (chordName: string) => {
+      messageDiv.textContent = `Acorde "${chordName}" não reconhecido. Use `
+      const link = document.createElement("button")
+      link.type = "button"
+      link.className = "leaf-music-acordes__message-link"
+      link.textContent = "Personalizar"
+      link.addEventListener("click", () => openCustomModal(chordName))
+      messageDiv.appendChild(link)
+      messageDiv.appendChild(document.createTextNode(" para desenhá-lo."))
+      messageDiv.hidden = false
+    }
 
-    input.addEventListener("keypress", (e) => {
+    addBtn.addEventListener("click", () => {
+      const typedName = input.value.trim()
+      if (!typedName) return
+
+      const found = findGuitarChord(typedName)
+      if (!found) {
+        // Não adiciona nada: desenhar um acorde inventado enganaria o usuário
+        showUnknownMessage(normalizeChordName(typedName))
+        return
+      }
+
+      this.data.payload.chords.push({
+        name: found.name,
+        chord: found.chord,
+        barres: found.barres,
+        position: found.position,
+      })
+
+      input.value = ""
+      clearMessage()
+      updateChordsList()
+      renderChords()
+      this.block?.dispatchChange()
+    })
+
+    input.addEventListener("input", clearMessage)
+
+    customBtn.addEventListener("click", () => openCustomModal())
+
+    // keydown (e não keypress) para o Editor.js não criar/apagar blocos com
+    // Enter, Backspace, Delete ou Tab dentro do campo
+    input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        // Enter que confirma composição de IME não deve adicionar o acorde
+        if (e.isComposing) return
+        e.preventDefault()
+        e.stopPropagation()
         addBtn.click()
+      } else if (e.key === "Backspace" || e.key === "Delete" || e.key === "Tab") {
+        e.stopPropagation()
       }
     })
 
@@ -367,6 +477,11 @@ export default class LeafMusicAcordesTool {
     })
 
     return wrapper
+  }
+
+  destroy(): void {
+    this.closeModal?.()
+    this.closeModal = null
   }
 
   save(): LeafMusicAcordesData {

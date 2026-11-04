@@ -1,40 +1,36 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, useRef } from "react";
-import { storage } from "@/lib/storage";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import NoteCard from "../NoteCard";
 import Spinner from "../Spinner";
 import NotesPagination from "../NotesPagination";
-import { CardNewNote } from "../CardNewNote";
 import EmptyNotes from "../EmptyNotes";
 import { useWorkspace } from "@/contexts/workspace-context";
 
 export default function PaginationDemo() {
 	const [currentPage, setCurrentPage] = useState(1);
-	const [isModalOpen, setIsModalOpen] = useState(false);
 	const itemsPerPage = 12;
-	const { activeWorkspace, refresh: refreshWorkspace } = useWorkspace();
+	const router = useRouter();
+	const { notes, isLoading, createNote } = useWorkspace();
 
-	const { data, isLoading, isError, refetch } = useQuery({
-		queryKey: ['notes', activeWorkspace?.id],
-		queryFn: async () => {
-			if (typeof window === 'undefined') return [];
-			const notes = storage.getNotes();
-			if (!activeWorkspace) return notes;
-			return notes
-				.filter((n) => !n.workspaceId || n.workspaceId === activeWorkspace.id)
-				.sort((a, b) => b.updatedAt - a.updatedAt);
+	// Notas da workspace ativa (o contexto já filtra): favoritas primeiro, depois mais recentes
+	const allNotes = useMemo(
+		() =>
+			[...notes].sort(
+				(a, b) =>
+					Number(!!b.isFavorite) - Number(!!a.isFavorite) || b.updatedAt - a.updatedAt
+			),
+		[notes]
+	);
+
+	const handleCreateNote = async () => {
+		try {
+			const newNote = await createNote("Nova Nota");
+			router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
+		} catch (err) {
+			console.error("Erro ao criar nota:", err);
 		}
-	});
-
-	const prevModalState = useRef(isModalOpen);
-	useEffect(() => {
-        if (prevModalState.current && !isModalOpen) {
-            refetch();
-            refreshWorkspace();
-        }
-        prevModalState.current = isModalOpen;
-    }, [isModalOpen, refetch, refreshWorkspace]);
+	};
 
 	if (isLoading) {
         return (
@@ -45,21 +41,13 @@ export default function PaginationDemo() {
         );
     }
 
-    if (isError) {
-        return (
-            <div className="container mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-6">Minhas Notas</h1>
-                <p className="text-red-500">Erro ao carregar as notas!</p>
-            </div>
-        );
-    }
-
-	const allNotes = data || [];
-    const index_inicial = (currentPage - 1) * itemsPerPage;
+    const totalPages = Math.ceil(allNotes.length / itemsPerPage);
+    // Se notas forem excluídas, a página atual pode deixar de existir
+    const page = Math.min(currentPage, Math.max(totalPages, 1));
+    const index_inicial = (page - 1) * itemsPerPage;
     const index_final = index_inicial + itemsPerPage;
 
     const notasAtual = allNotes.slice(index_inicial, index_final);
-    const totalPages = Math.ceil(allNotes.length / itemsPerPage);
 
 	return (
         <div className="container mx-auto p-4">
@@ -67,7 +55,7 @@ export default function PaginationDemo() {
 
             {allNotes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-6 py-12">
-                    <EmptyNotes onCreateNote={() => setIsModalOpen(true)}/>
+                    <EmptyNotes onCreateNote={handleCreateNote}/>
                 </div>
             ) : (
                 <>
@@ -78,10 +66,11 @@ export default function PaginationDemo() {
                                 id={note.id}
                                 idx={index}
                                 title={note.title}
-                                description={note.description}
+                                description={note.description ?? ""}
                                 lastUpdateDate={note.lastUpdateDate}
                                 lastUpdateTime={note.lastUpdateTime}
                                 href={`/workspace?noteId=${note.id}`}
+                                isFavorite={!!note.isFavorite}
                             />
                         ))}
                     </div>
@@ -89,19 +78,13 @@ export default function PaginationDemo() {
                     {totalPages > 1 && (
                         <div className="flex gap-4 justify-center mt-8">
                             <NotesPagination
-                                currentPage={currentPage}
+                                currentPage={page}
                                 totalPages={totalPages}
                                 onPageChange={setCurrentPage}
                             />
                         </div>
                     )}
                 </>
-            )}
-
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50">
-                    <CardNewNote onClick={() => setIsModalOpen(false)} />
-                </div>
             )}
         </div>
     );

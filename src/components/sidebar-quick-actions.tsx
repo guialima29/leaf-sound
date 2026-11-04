@@ -11,6 +11,8 @@ export function SidebarQuickActions() {
   const router = useRouter();
   const { createNote, createSection, activeWorkspace } = useWorkspace();
   const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
+  // Muda a cada abertura para recriar o diálogo com o nome vazio
+  const [sectionDialogKey, setSectionDialogKey] = useState(0);
   const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   const handleCreateNote = async () => {
@@ -53,7 +55,10 @@ export function SidebarQuickActions() {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setIsSectionDialogOpen(true)}
+          onClick={() => {
+            setSectionDialogKey((k) => k + 1);
+            setIsSectionDialogOpen(true);
+          }}
           className="flex-1 w-full h-8 p-1 hover:scale-101 text-xs font-medium gap-1.5 justify-center shadow-xs hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           title="Criar nova seção de notas"
         >
@@ -63,6 +68,7 @@ export function SidebarQuickActions() {
       </div>
 
       <SectionCreateDialog
+        key={sectionDialogKey}
         isOpen={isSectionDialogOpen}
         onClose={() => setIsSectionDialogOpen(false)}
         onSubmit={handleCreateSection}

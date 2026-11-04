@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,10 +29,6 @@ export function SectionCreateDialog({
 }: SectionDialogProps) {
   const [name, setName] = useState(initialName);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    setName(initialName);
-  }, [initialName, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

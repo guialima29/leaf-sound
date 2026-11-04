@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Workspace, Section, WorkspaceNote } from "@/types/workspace";
-import { workspaceService } from "@/lib/api/workspace-service";
+import { workspaceService, type NoteUpdate } from "@/lib/api/workspace-service";
 
 interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
@@ -18,6 +18,8 @@ interface WorkspaceContextType {
   deleteSection: (id: string, moveNotesToRoot?: boolean) => Promise<void>;
   createNote: (title: string, sectionId?: string | null) => Promise<WorkspaceNote>;
   renameNote: (id: string, newTitle: string) => Promise<WorkspaceNote>;
+  updateNote: (id: string, patch: NoteUpdate) => Promise<WorkspaceNote>;
+  toggleFavorite: (noteId: string) => Promise<WorkspaceNote>;
   moveNoteToSection: (noteId: string, sectionId: string | null) => Promise<WorkspaceNote>;
   deleteNote: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
@@ -47,8 +49,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Carrega workspaces iniciais
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
+  const loadAll = useCallback(async () => {
     try {
       const wsList = await workspaceService.getWorkspaces();
       setWorkspaces(wsList);
@@ -71,9 +72,17 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loadWorkspaceData]);
 
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    await loadAll();
+  }, [loadAll]);
+
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    // setState só acontece depois do await dentro de loadAll (isLoading já começa true)
+    void (async () => {
+      await loadAll();
+    })();
+  }, [loadAll]);
 
   const switchWorkspace = useCallback((workspaceId: string) => {
     const target = workspaces.find((w) => w.id === workspaceId);
@@ -149,6 +158,19 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return updated;
   }, []);
 
+  const updateNote = useCallback(async (id: string, patch: NoteUpdate) => {
+    const updated = await workspaceService.updateNote(id, patch);
+    // Mescla para não perder campos (ex.: content) caso a API devolva a nota parcial
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
+    return updated;
+  }, []);
+
+  // Alterna o favorito; não altera updatedAt (ver workspaceService.updateNote)
+  const toggleFavorite = useCallback(async (noteId: string) => {
+    const current = notes.find((n) => n.id === noteId);
+    return updateNote(noteId, { isFavorite: !current?.isFavorite });
+  }, [notes, updateNote]);
+
   const moveNoteToSection = useCallback(async (noteId: string, sectionId: string | null) => {
     const updated = await workspaceService.moveNoteToSection(noteId, sectionId);
     setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
@@ -176,6 +198,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         deleteSection,
         createNote,
         renameNote,
+        updateNote,
+        toggleFavorite,
         moveNoteToSection,
         deleteNote,
         refresh,

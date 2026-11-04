@@ -11,6 +11,7 @@ import {
   Trash2,
   MoveRight,
   FilePlus,
+  Star,
 } from "lucide-react";
 
 import {
@@ -68,6 +69,7 @@ export function NavWorkspaceTree() {
     renameSection,
     deleteSection,
     moveNoteToSection,
+    toggleFavorite,
   } = useWorkspace();
 
   // Estados de arrasto (Drag and Drop)
@@ -83,6 +85,22 @@ export function NavWorkspaceTree() {
 
   // Notas da raiz (sem seção)
   const rootNotes = notes.filter((n) => !n.sectionId);
+  // Notas favoritas da workspace ativa (também aparecem na sua seção / raiz)
+  const favoriteNotes = notes.filter((n) => n.isFavorite);
+
+  const handleToggleFavorite = (noteId: string) => {
+    toggleFavorite(noteId).catch((err) => {
+      console.error("Erro ao alterar favorito:", err);
+    });
+  };
+
+  // Item de menu de contexto "Favoritar" / "Remover dos favoritos"
+  const renderFavoriteMenuItem = (note: WorkspaceNote) => (
+    <ContextMenuItem onClick={() => handleToggleFavorite(note.id)}>
+      <Star className={`size-4 mr-2 ${note.isFavorite ? "fill-primary text-primary" : ""}`} />
+      <span>{note.isFavorite ? "Remover dos favoritos" : "Favoritar"}</span>
+    </ContextMenuItem>
+  );
 
   // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, noteId: string) => {
@@ -136,6 +154,99 @@ export function NavWorkspaceTree() {
 
   return (
     <>
+      {/* FAVORITOS (oculto quando não há favoritas na workspace ativa) */}
+      {favoriteNotes.length > 0 && (
+        <SidebarGroup className="py-0">
+          <div className="flex items-center justify-between px-2 pt-2 pb-1">
+            <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 p-0 h-auto gap-1.5">
+              <Star className="size-3 fill-primary text-primary" />
+              Favoritos
+            </SidebarGroupLabel>
+            <span className="text-[10px] text-muted-foreground">{favoriteNotes.length}</span>
+          </div>
+
+          <SidebarMenu className="gap-1 mt-1">
+            {favoriteNotes.map((note) => (
+              <ContextMenu key={note.id}>
+                <ContextMenuTrigger asChild>
+                  {/* Sem draggable: evita drops ambíguos a partir deste grupo */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={currentNoteId === note.id}
+                      onClick={() => handleOpenNote(note.id)}
+                      className="flex items-center gap-2 hover:bg-sidebar-accent rounded-md"
+                    >
+                      <button type="button" className="w-full text-left truncate flex items-center gap-2">
+                        <Star className="size-4 shrink-0 fill-primary text-primary" />
+                        <span className="truncate">{note.title}</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </ContextMenuTrigger>
+
+                {/* MENU DE CONTEXTO DA NOTA FAVORITA */}
+                <ContextMenuContent className="w-48">
+                  <ContextMenuItem onClick={() => handleOpenNote(note.id)}>
+                    <FileText className="size-4 mr-2" />
+                    <span>Abrir Nota</span>
+                  </ContextMenuItem>
+                  <ContextMenuItem
+                    onClick={() => {
+                      setEditingNote(note);
+                      setNoteNewTitle(note.title);
+                    }}
+                  >
+                    <Pencil className="size-4 mr-2" />
+                    <span>Renomear</span>
+                  </ContextMenuItem>
+                  {renderFavoriteMenuItem(note)}
+
+                  {(sections.length > 0 || note.sectionId) && (
+                    <ContextMenuSub>
+                      <ContextMenuSubTrigger>
+                        <MoveRight className="size-4 mr-2" />
+                        <span>Mover para...</span>
+                      </ContextMenuSubTrigger>
+                      <ContextMenuSubContent className="w-44">
+                        {note.sectionId && (
+                          <ContextMenuItem onClick={() => moveNoteToSection(note.id, null)}>
+                            <span>Raiz (Sem seção)</span>
+                          </ContextMenuItem>
+                        )}
+                        {note.sectionId && sections.some((s) => s.id !== note.sectionId) && (
+                          <ContextMenuSeparator />
+                        )}
+                        {sections
+                          .filter((s) => s.id !== note.sectionId)
+                          .map((s) => (
+                            <ContextMenuItem
+                              key={s.id}
+                              onClick={() => moveNoteToSection(note.id, s.id)}
+                            >
+                              <Folder className="size-3.5 mr-2 text-amber-500" />
+                              <span className="truncate">{s.name}</span>
+                            </ContextMenuItem>
+                          ))}
+                      </ContextMenuSubContent>
+                    </ContextMenuSub>
+                  )}
+
+                  <ContextMenuSeparator />
+                  <ContextMenuItem
+                    onClick={() => setDeletingNote(note)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="size-4 mr-2" />
+                    <span>Excluir</span>
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      )}
+
       <SidebarGroup className="py-0">
         <div className="flex items-center justify-between px-2 pt-2 pb-1">
           <SidebarGroupLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 p-0 h-auto">
@@ -230,6 +341,7 @@ export function NavWorkspaceTree() {
                                     <Pencil className="size-4 mr-2" />
                                     <span>Renomear</span>
                                   </ContextMenuItem>
+                                  {renderFavoriteMenuItem(note)}
 
                                   <ContextMenuSub>
                                     <ContextMenuSubTrigger>
@@ -356,6 +468,7 @@ export function NavWorkspaceTree() {
                       <Pencil className="size-4 mr-2" />
                       <span>Renomear</span>
                     </ContextMenuItem>
+                    {renderFavoriteMenuItem(note)}
 
                     {sections.length > 0 && (
                       <ContextMenuSub>
@@ -395,6 +508,7 @@ export function NavWorkspaceTree() {
 
       {/* DIÁLOGO: RENOMEAR SEÇÃO */}
       <SectionCreateDialog
+        key={editingSection?.id ?? "closed"}
         isOpen={!!editingSection}
         onClose={() => setEditingSection(null)}
         initialName={editingSection?.name || ""}

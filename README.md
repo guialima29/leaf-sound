@@ -1,5 +1,7 @@
 # LeafSound (In Development)
 
+[![CI](https://github.com/guialima29/leaf-sound/actions/workflows/ci.yml/badge.svg)](https://github.com/guialima29/leaf-sound/actions/workflows/ci.yml)
+
 
 
 

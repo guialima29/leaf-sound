@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 export interface TitleWithBarProps {
   title: string;
   editable?: boolean;
@@ -17,16 +15,8 @@ export default function TitleWithBar({
   maxLength = 40,
   className = "",
 }: TitleWithBarProps) {
-  const [currentTitle, setCurrentTitle] = useState(title);
-
-  useEffect(() => {
-    setCurrentTitle(title);
-  }, [title]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setCurrentTitle(val);
-    onTitleChange?.(val);
+    onTitleChange?.(e.target.value);
   };
 
   return (
@@ -35,14 +25,14 @@ export default function TitleWithBar({
         {editable ? (
           <input
             type="text"
-            value={currentTitle}
+            value={title}
             onChange={handleChange}
             maxLength={maxLength}
             placeholder="Título da nota"
-            className="text-[36px] font-libre-caslon font-semibold text-[#2B3328] text-center bg-transparent border-none outline-none focus:ring-0 focus:border-b focus:border-primary/40 transition-colors w-full max-w-2xl px-2"
+            className="text-[36px] font-libre-caslon font-semibold text-foreground text-center bg-transparent border-none outline-none focus:ring-0 focus:border-b focus:border-primary/40 transition-colors w-full max-w-2xl px-2"
           />
         ) : (
-          <h1 className="text-[36px] font-libre-caslon font-semibold text-[#2B3328] text-center">
+          <h1 className="text-[36px] font-libre-caslon font-semibold text-foreground text-center">
             {title}
           </h1>
         )}

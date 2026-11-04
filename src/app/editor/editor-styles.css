@@ -180,22 +180,6 @@ h3.ce-header {
     cursor: pointer;
 }
 
-.leaf-music-partitura__btn {
-    background: var(--primary, #21212e);
-    color: var(--primary-foreground, #f9f9f9);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: opacity 0.2s;
-}
-
-.leaf-music-partitura__btn:hover {
-    opacity: 0.85;
-}
-
 .leaf-music-partitura__preview {
     min-height: 180px;
     display: flex;
@@ -205,6 +189,16 @@ h3.ce-header {
     border-radius: 8px;
     border: 1px solid var(--border, #e5e7eb);
     padding: 10px;
+}
+
+.leaf-music-partitura__invalid {
+    color: var(--destructive, #b91c1c);
+    font-size: 0.875rem;
+    font-family: monospace;
+}
+
+.leaf-music-partitura__invalid[hidden] {
+    display: none;
 }
 
 .leaf-music-partitura--error {
@@ -297,6 +291,31 @@ h3.ce-header {
 
 .leaf-music-acordes__btn--custom:hover {
     opacity: 0.85;
+}
+
+.leaf-music-acordes__message {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--destructive, #b91c1c);
+}
+
+.leaf-music-acordes__message[hidden] {
+    display: none;
+}
+
+.leaf-music-acordes__message-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    color: var(--primary, #21212e);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.leaf-music-acordes__message-link:hover {
+    opacity: 0.75;
 }
 
 .leaf-music-acordes__list {
@@ -445,23 +464,25 @@ h3.ce-header {
 
 .leaf-music-acordes__modal-strings {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 15px;
 }
 
 .leaf-music-acordes__modal-string-wrapper {
-    text-align: center;
-    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .leaf-music-acordes__modal-string-label {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted-foreground, #6b7280);
-    margin-bottom: 5px;
 }
 
 .leaf-music-acordes__modal-string-input {
-    width: 100%;
+    width: 80px;
     padding: 6px;
     text-align: center;
     border: 1px solid var(--input, #d1d5db);
@@ -484,6 +505,16 @@ h3.ce-header {
     font-size: 14px;
     background: var(--background, white);
     color: var(--foreground, #1f2937);
+}
+
+.leaf-music-acordes__modal-error {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--destructive, #b91c1c);
+}
+
+.leaf-music-acordes__modal-error[hidden] {
+    display: none;
 }
 
 .leaf-music-acordes__modal-buttons {

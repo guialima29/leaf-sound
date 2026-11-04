@@ -26,6 +26,7 @@ function WorkspaceContent() {
         <main className="flex-1 w-full overflow-y-auto">
           {noteId ? (
             <NoteEditor
+              key={noteId}
               noteId={noteId}
               onBack={() => router.push("/workspace", { scroll: false })}
             />
