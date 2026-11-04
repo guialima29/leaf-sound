@@ -180,22 +180,6 @@ h3.ce-header {
     cursor: pointer;
 }
 
-.leaf-music-partitura__btn {
-    background: var(--primary, #21212e);
-    color: var(--primary-foreground, #f9f9f9);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    transition: opacity 0.2s;
-}
-
-.leaf-music-partitura__btn:hover {
-    opacity: 0.85;
-}
-
 .leaf-music-partitura__preview {
     min-height: 180px;
     display: flex;
@@ -205,6 +189,16 @@ h3.ce-header {
     border-radius: 8px;
     border: 1px solid var(--border, #e5e7eb);
     padding: 10px;
+}
+
+.leaf-music-partitura__invalid {
+    color: var(--destructive, #b91c1c);
+    font-size: 0.875rem;
+    font-family: monospace;
+}
+
+.leaf-music-partitura__invalid[hidden] {
+    display: none;
 }
 
 .leaf-music-partitura--error {

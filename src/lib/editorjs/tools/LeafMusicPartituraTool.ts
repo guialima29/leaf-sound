@@ -1,20 +1,27 @@
+import type { BlockAPI, BlockToolConstructorOptions } from "@editorjs/editorjs"
 import {
   createDefaultLeafMusicPartituraData,
   isLeafMusicPartituraData,
   type LeafMusicPartituraData,
 } from "@/types/editor-music"
 
-interface LeafMusicPartituraToolConstructor {
-  data?: Record<string, unknown>
-}
+/** Tempo de espera (ms) após a última edição antes de redesenhar o preview. */
+const PREVIEW_DEBOUNCE_MS = 400
+
+/** Teclas que o Editor.js trataria (criar/apagar/mover bloco), mas que pertencem ao campo. */
+const KEYS_BLOCKED_FROM_EDITOR = new Set(["Enter", "Backspace", "Delete", "Tab"])
 
 /**
- * Parseia a string EasyScore simplificada ("C4/q D4/q E4/q F4/q")
- * e retorna array de { keys: string[], duration: string }.
+ * Parseia a string EasyScore simplificada ("C4/q D4/q E4/q F4/q").
+ * Retorna as notas reconhecidas ({ keys, duration }) e os tokens ignorados por formato inválido.
  */
-function parseNotesString(input: string): Array<{ keys: string[]; duration: string }> {
-  const tokens = input.trim().split(/\s+/)
+function parseNotesString(input: string): {
+  notes: Array<{ keys: string[]; duration: string }>
+  invalid: string[]
+} {
+  const tokens = input.split(/\s+/).filter(Boolean)
   const result: Array<{ keys: string[]; duration: string }> = []
+  const invalid: string[] = []
 
   const durationMap: Record<string, string> = {
     w: "w",
@@ -41,14 +48,19 @@ function parseNotesString(input: string): Array<{ keys: string[]; duration: stri
       const noteName = match[1].toLowerCase()
       const octave = match[2]
       result.push({ keys: [`${noteName}/${octave}`], duration })
+    } else {
+      invalid.push(token)
     }
   }
 
-  return result
+  return { notes: result, invalid }
 }
 
 export default class LeafMusicPartituraTool {
   private data: LeafMusicPartituraData
+  private block?: BlockAPI
+  private previewTimer: ReturnType<typeof setTimeout> | null = null
+  private destroyed = false
 
   static get toolbox() {
     return {
@@ -57,7 +69,8 @@ export default class LeafMusicPartituraTool {
     }
   }
 
-  constructor({ data }: LeafMusicPartituraToolConstructor) {
+  constructor({ data, block }: Partial<BlockToolConstructorOptions<Record<string, unknown>>>) {
+    this.block = block
     if (data && isLeafMusicPartituraData(data)) {
       this.data = data
     } else {
@@ -126,10 +139,6 @@ export default class LeafMusicPartituraTool {
     timeSelect.appendChild(time68)
     timeSelect.value = this.data.payload.timeSignature
 
-    const renderBtn = document.createElement("button")
-    renderBtn.className = "leaf-music-partitura__btn"
-    renderBtn.textContent = "Renderizar Partitura"
-
     configRow.appendChild(clefLabel)
     configRow.appendChild(clefSelect)
     configRow.appendChild(timeLabel)
@@ -138,21 +147,29 @@ export default class LeafMusicPartituraTool {
     const previewDiv = document.createElement("div")
     previewDiv.className = "leaf-music-partitura__preview"
 
+    // Tokens ignorados (formato inválido), exibidos abaixo do preview
+    const invalidDiv = document.createElement("div")
+    invalidDiv.className = "leaf-music-partitura__invalid"
+    invalidDiv.hidden = true
+
     editorDiv.appendChild(inputLabel)
     editorDiv.appendChild(input)
     editorDiv.appendChild(configRow)
-    editorDiv.appendChild(renderBtn)
 
     container.appendChild(editorDiv)
     container.appendChild(previewDiv)
+    container.appendChild(invalidDiv)
     wrapper.appendChild(container)
 
     const renderPreview = async () => {
       try {
         const VexFlow = await import("vexflow")
+        // O módulo pode terminar de carregar depois de o bloco ser removido
+        if (this.destroyed) return
+
         const { Renderer, Stave, StaveNote, Voice, Formatter } = VexFlow
 
-        const notesValue = input.value || "C4/q D4/q E4/q F4/q"
+        const notesValue = input.value
         const clefValue = clefSelect.value
         const timeValue = timeSelect.value
 
@@ -172,7 +189,10 @@ export default class LeafMusicPartituraTool {
         stave.addTimeSignature(timeValue)
         stave.setContext(context).draw()
 
-        const parsedNotes = parseNotesString(notesValue)
+        const { notes: parsedNotes, invalid } = parseNotesString(notesValue)
+
+        invalidDiv.hidden = invalid.length === 0
+        invalidDiv.textContent = invalid.length > 0 ? `Ignorado: ${invalid.join(", ")}` : ""
 
         if (parsedNotes.length > 0) {
           const staveNotes = parsedNotes.map(
@@ -188,21 +208,10 @@ export default class LeafMusicPartituraTool {
           new Formatter().joinVoices([voice]).format([voice], 440)
           voice.draw(context, stave)
         }
-
-        this.data = {
-          schemaVersion: this.data.schemaVersion,
-          variant: "partitura",
-          payload: {
-            notes: notesValue,
-            clef: clefValue,
-            timeSignature: timeValue,
-            width: 500,
-            height: 200,
-          },
-        }
       } catch (error) {
         console.error("Erro ao renderizar partitura:", error)
         previewDiv.innerHTML = ""
+        invalidDiv.hidden = true
         const errorMsg = document.createElement("div")
         errorMsg.className = "leaf-music-partitura--error"
         errorMsg.textContent = "Erro ao renderizar partitura. Verifique o formato das notas."
@@ -210,7 +219,42 @@ export default class LeafMusicPartituraTool {
       }
     }
 
-    renderBtn.addEventListener("click", renderPreview)
+    // Atualiza os dados na hora e avisa o Editor.js (dispara o onChange -> autosave)
+    const syncData = () => {
+      this.data = {
+        schemaVersion: this.data.schemaVersion,
+        variant: "partitura",
+        payload: {
+          notes: input.value,
+          clef: clefSelect.value,
+          timeSignature: timeSelect.value,
+          width: 500,
+          height: 200,
+        },
+      }
+      this.block?.dispatchChange()
+    }
+
+    const onEdit = () => {
+      syncData()
+      if (this.previewTimer) clearTimeout(this.previewTimer)
+      this.previewTimer = setTimeout(() => {
+        this.previewTimer = null
+        renderPreview()
+      }, PREVIEW_DEBOUNCE_MS)
+    }
+
+    input.addEventListener("input", onEdit)
+    clefSelect.addEventListener("change", onEdit)
+    timeSelect.addEventListener("change", onEdit)
+
+    // Impede o Editor.js de criar/apagar blocos com teclas usadas no campo
+    const stopEditorKeys = (e: KeyboardEvent) => {
+      if (KEYS_BLOCKED_FROM_EDITOR.has(e.key)) e.stopPropagation()
+    }
+    input.addEventListener("keydown", stopEditorKeys)
+    clefSelect.addEventListener("keydown", stopEditorKeys)
+    timeSelect.addEventListener("keydown", stopEditorKeys)
 
     // Wait for the element to be in the DOM before rendering
     requestAnimationFrame(() => {
@@ -220,6 +264,14 @@ export default class LeafMusicPartituraTool {
     })
 
     return wrapper
+  }
+
+  destroy(): void {
+    this.destroyed = true
+    if (this.previewTimer) {
+      clearTimeout(this.previewTimer)
+      this.previewTimer = null
+    }
   }
 
   save(): LeafMusicPartituraData {

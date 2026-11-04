@@ -1,3 +1,4 @@
+import type { BlockAPI, BlockToolConstructorOptions } from "@editorjs/editorjs"
 import {
   createDefaultLeafMusicAcordesData,
   isLeafMusicAcordesData,
@@ -5,12 +6,9 @@ import {
   type ChordPosition,
 } from "@/types/editor-music"
 
-interface LeafMusicAcordesToolConstructor {
-  data?: Record<string, unknown>
-}
-
 export default class LeafMusicAcordesTool {
   private data: LeafMusicAcordesData
+  private block?: BlockAPI
 
   static get toolbox() {
     return {
@@ -19,7 +17,8 @@ export default class LeafMusicAcordesTool {
     }
   }
 
-  constructor({ data }: LeafMusicAcordesToolConstructor) {
+  constructor({ data, block }: Partial<BlockToolConstructorOptions<Record<string, unknown>>>) {
+    this.block = block
     if (data && isLeafMusicAcordesData(data)) {
       this.data = data
     } else {
@@ -161,6 +160,7 @@ export default class LeafMusicAcordesTool {
           this.data.payload.chords.splice(index, 1)
           updateChordsList()
           renderChords()
+          this.block?.dispatchChange()
         }
 
         chordItem.appendChild(nameSpan)
@@ -214,6 +214,7 @@ export default class LeafMusicAcordesTool {
       input.value = ""
       updateChordsList()
       renderChords()
+      this.block?.dispatchChange()
     })
 
     const openCustomModal = () => {
@@ -336,6 +337,7 @@ export default class LeafMusicAcordesTool {
         document.body.removeChild(modal)
         updateChordsList()
         renderChords()
+        this.block?.dispatchChange()
       })
 
       cancelBtn.addEventListener("click", () => {
@@ -351,9 +353,15 @@ export default class LeafMusicAcordesTool {
 
     customBtn.addEventListener("click", openCustomModal)
 
-    input.addEventListener("keypress", (e) => {
+    // keydown (e não keypress) para o Editor.js não criar/apagar blocos com
+    // Enter, Backspace, Delete ou Tab dentro do campo
+    input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
+        e.preventDefault()
+        e.stopPropagation()
         addBtn.click()
+      } else if (e.key === "Backspace" || e.key === "Delete" || e.key === "Tab") {
+        e.stopPropagation()
       }
     })
 
