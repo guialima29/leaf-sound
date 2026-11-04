@@ -38,6 +38,21 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
   const [initialNote] = useState(() => loadInitialNote(noteId, notes));
   const editorData = initialNote.content;
   const [noteTitle, setNoteTitle] = useState(initialNote.title);
+
+  // Acompanha renomeações externas (ex.: sidebar) sem reverter o que o usuário digita:
+  // o "eco" do próprio renameNote do editor (lastSentTitle) é ignorado.
+  // Padrão "ajustar estado durante o render" (sem setState em efeito).
+  const contextTitle = notes.find((n) => n.id === noteId)?.title;
+  const [prevContextTitle, setPrevContextTitle] = useState(contextTitle);
+  const [lastSentTitle, setLastSentTitle] = useState<string | null>(null);
+  if (contextTitle !== prevContextTitle) {
+    setPrevContextTitle(contextTitle);
+    // workspaceService.renameNote aplica trim(), então compara com o título enviado já normalizado
+    if (contextTitle !== undefined && contextTitle !== lastSentTitle?.trim()) {
+      setNoteTitle(contextTitle);
+      setLastSentTitle(null);
+    }
+  }
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -149,6 +164,7 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
 
       titleTimerRef.current = setTimeout(async () => {
         try {
+          setLastSentTitle(newTitle);
           await renameNote(noteId, newTitle);
           storage.saveNote({ id: noteId, title: newTitle });
           setLastSaved(new Date());
