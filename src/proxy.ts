@@ -1,6 +1,14 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-export default clerkMiddleware();
+// Nenhuma rota está protegida ainda. Sem a chave do Clerk, o clerkMiddleware() lança erro
+// e todas as rotas respondem 500 no `next start`; por isso, sem a chave, a requisição passa direto.
+// TODO: a tarefa de autenticação deve tornar a chave obrigatória (remover este fallback).
+const proxy = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  ? clerkMiddleware()
+  : () => NextResponse.next();
+
+export default proxy;
 
 export const config = {
   matcher: [
