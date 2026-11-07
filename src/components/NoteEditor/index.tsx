@@ -9,7 +9,9 @@ import Spinner from "@/components/Spinner";
 import { SpinnerBadge } from "@/components/SpinnerBadge";
 import { Button } from "@/components/ui/button";
 import { workspaceService, isApiMode, type NoteUpdate } from "@/lib/api/workspace-service";
+import { toast } from "sonner";
 import { reportError } from "@/lib/api/errors";
+import { getDraft, setDraft, clearDraft } from "@/lib/api/drafts";
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { WorkspaceNote } from "@/types/workspace";
 
@@ -117,8 +119,14 @@ interface NoteEditorBodyProps {
 
 function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
   const { notes, updateNote, toggleFavorite } = useWorkspace();
-  const editorData = initialNote.content;
-  const [noteTitle, setNoteTitle] = useState(initialNote.title || "Nova Nota");
+  // Modo API: alterações que não chegaram ao servidor (falha ao salvar / ao sair da nota)
+  // ficam em memória (lib/api/drafts) e têm prioridade sobre o que veio do servidor.
+  // Lido uma vez, na montagem (no modo local é sempre undefined).
+  const [draft] = useState(() => getDraft(noteId));
+  const editorData = draft?.content ?? initialNote.content;
+  const [noteTitle, setNoteTitle] = useState(
+    draft?.title?.trim() ? draft.title : initialNote.title || "Nova Nota"
+  );
 
   // Acompanha renomeações externas (ex.: sidebar) sem reverter o que o usuário digita:
   // o "eco" do próprio updateNote do editor (lastSentTitle) é ignorado.
@@ -136,7 +144,8 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
       setLastSentTitle(null);
     }
   }
-  const [isSaving, setIsSaving] = useState(false);
+  // Com rascunho de conteúdo restaurado, o novo salvamento já está agendado ("Editando...")
+  const [isSaving, setIsSaving] = useState(draft?.content !== undefined);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   // Falha ao salvar (API): o que não foi salvo continua pendente (refs abaixo) e é reenviado
   // no próximo salvamento, ao trocar de nota ou pelo botão "Tentar novamente" do badge.
@@ -147,13 +156,35 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
   const pendingTitleRef = useRef<string | null>(null);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const titleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // true entre o desmonte e uma eventual nova montagem: respostas atrasadas de envios antigos
+  // não devem sobrescrever/limpar o rascunho gravado pelo salvamento ao sair da nota
+  const unmountedRef = useRef(false);
+
+  // Guarda no rascunho o que falhou ao salvar (modo API). Montado: o pendente mais novo;
+  // desmontado: só preenche o que ainda não tem rascunho.
+  const rememberFailed = useCallback(
+    (patch: { content?: OutputData; title?: string }) => {
+      setDraft(noteId, patch, unmountedRef.current);
+    },
+    [noteId]
+  );
+
+  // Apaga do rascunho o que acabou de ser salvo. Desmontado: só se o rascunho for exatamente
+  // aquele valor (um mais novo é preservado).
+  const forgetSaved = useCallback(
+    (field: "content" | "title", value: OutputData | string) => {
+      clearDraft(noteId, field, unmountedRef.current ? value : undefined);
+    },
+    [noteId]
+  );
 
   // Marca a falha de salvamento. O toast aparece só na primeira falha de uma sequência
   // (o autosave tenta de novo a cada edição; o badge continua mostrando o erro).
   const markSaveFailed = useCallback(
     (err: unknown) => {
       setSaveError(true);
-      if (hadSaveErrorRef.current) {
+      // Depois de sair da nota quem avisa é o toast do salvamento ao sair
+      if (hadSaveErrorRef.current || unmountedRef.current) {
         console.error("Erro ao salvar nota:", err);
         return;
       }
@@ -191,25 +222,32 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
         );
         // Só limpa o pendente se ninguém digitou mais nada durante o salvamento
         if (pendingDataRef.current === data) pendingDataRef.current = null;
+        forgetSaved("content", data);
         setLastSaved(new Date());
         markSaveOkIfIdle();
       } catch (err) {
-        // O conteúdo continua em pendingDataRef para a próxima tentativa
+        // O conteúdo continua em pendingDataRef (e no rascunho) para a próxima tentativa
+        rememberFailed({ content: unmountedRef.current ? data : (pendingDataRef.current ?? data) });
         markSaveFailed(err);
       } finally {
         // Continua "Editando..." se já há um novo salvamento agendado
         setIsSaving(saveTimerRef.current !== null);
       }
     },
-    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle]
+    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle, rememberFailed, forgetSaved]
   );
 
   // Flush on unmount (a troca de nota desmonta o componente via key={noteId}).
   // Salva conteúdo e título pendentes em uma única atualização. updateNote do contexto
   // grava pelo service de forma síncrona (modo local) e é do provider, que continua
   // montado, então o grid já enxerga a nota atualizada ao voltar para a listagem.
+  // No modo API a gravação é assíncrona e pode falhar: antes de tentar, o pendente vai para o
+  // rascunho, que só é apagado depois do sucesso; se falhar, o toast avisa e a nota restaura
+  // o rascunho ao ser reaberta.
   useEffect(() => {
+    unmountedRef.current = false;
     return () => {
+      unmountedRef.current = true;
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
@@ -232,11 +270,28 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
       pendingDataRef.current = null;
       pendingTitleRef.current = null;
 
-      if (Object.keys(patch).length > 0) {
+      if (Object.keys(patch).length === 0) return;
+
+      if (!isApiMode) {
         updateNote(noteId, patch).catch((err) => {
           console.error("Erro ao salvar pendências na troca/desmonte:", err);
         });
+        return;
       }
+
+      setDraft(noteId, { content: patch.content, title: patch.title });
+      updateNote(noteId, patch, { silent: true })
+        .then(() => {
+          if (patch.content !== undefined) clearDraft(noteId, "content", patch.content);
+          if (patch.title !== undefined) clearDraft(noteId, "title", patch.title);
+        })
+        .catch((err) => {
+          reportError(
+            err,
+            "Não foi possível salvar as alterações ao sair da nota. Elas serão restauradas ao reabrir.",
+            `leave-save-${noteId}`
+          );
+        });
     };
   }, [noteId, updateNote]);
 
@@ -265,14 +320,16 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
       try {
         setLastSentTitle(title);
         await updateNote(noteId, { title }, { silent: true });
+        forgetSaved("title", title);
         setLastSaved(new Date());
         markSaveOkIfIdle();
       } catch (err) {
         if (pendingTitleRef.current === null) pendingTitleRef.current = title;
+        rememberFailed({ title: unmountedRef.current ? title : (pendingTitleRef.current ?? title) });
         markSaveFailed(err);
       }
     },
-    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle]
+    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle, rememberFailed, forgetSaved]
   );
 
   // Handle title changes with 400ms debounce and sync
@@ -307,6 +364,30 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
     if (title !== null && title.trim()) void sendTitle(title);
     if (pendingDataRef.current) void flushSave();
   }, [sendTitle, flushSave]);
+
+  // Restaura o rascunho (modo API): conteúdo/título voltam como pendentes e o autosave normal
+  // (3000 ms conteúdo, 400 ms título) tenta enviar de novo.
+  useEffect(() => {
+    if (!draft) return;
+    toast.info("Restauramos alterações não salvas desta nota", { id: `restore-${noteId}` });
+    if (draft.content !== undefined) {
+      const content = draft.content;
+      pendingDataRef.current = content;
+      saveTimerRef.current = setTimeout(() => {
+        saveTimerRef.current = null;
+        void flushSave(content);
+      }, 3000);
+    }
+    if (draft.title?.trim()) {
+      pendingTitleRef.current = draft.title;
+      titleTimerRef.current = setTimeout(() => {
+        titleTimerRef.current = null;
+        const title = pendingTitleRef.current;
+        pendingTitleRef.current = null;
+        if (title !== null && title.trim()) void sendTitle(title);
+      }, 400);
+    }
+  }, [draft, noteId, flushSave, sendTitle]);
 
   return (
     <div className="w-full flex flex-col pb-16">

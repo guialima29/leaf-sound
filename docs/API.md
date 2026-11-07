@@ -298,6 +298,13 @@ autosave, qualquer erro mantém o conteúdo pendente no navegador e o badge most
 com um botão "Tentar novamente"; o próximo salvamento (nova edição, troca de nota ou clique no botão)
 reenvia o conteúdo.
 
+Se o salvamento ao **sair** da nota falhar, o frontend mantém o conteúdo/título não salvos em um
+rascunho **em memória** (por nota) e os restaura (com o aviso "Restauramos alterações não salvas desta
+nota") quando a nota é reaberta, reenviando-os pelo autosave normal. Esse rascunho **não** sobrevive a
+recarregar a página ou fechar a aba. Além disso, `GET /api/notes/:id` de uma nota só é emitido depois
+que os `PATCH` pendentes dessa nota terminam, então o backend recebe, por nota, no máximo uma requisição
+por vez vinda de um mesmo navegador.
+
 ## 7. Limites sugeridos
 
 | Item | Limite sugerido | Resposta ao exceder |

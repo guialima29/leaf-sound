@@ -10,9 +10,21 @@ const noteCache = new Map<string, WorkspaceNote>();
 // (ex.: salvamento do autosave + salvamento ao trocar de nota com o mesmo texto pendente).
 const lastSentContent = new Map<string, string>();
 
-// Fila de gravações por nota: um PATCH só começa depois que o anterior da mesma nota terminou,
+// Fila por nota (PATCH e GET): um PATCH só começa depois que o anterior da mesma nota terminou,
 // então nunca há dois em paralelo nem chegada fora de ordem.
 const patchQueues = new Map<string, Promise<unknown>>();
+
+// Executa `job` depois de tudo o que já está na fila da nota (mesmo que tenha falhado).
+function enqueue<T>(noteId: string, job: () => Promise<T>): Promise<T> {
+  const previous = patchQueues.get(noteId) ?? Promise.resolve();
+  const result = previous.then(job, job);
+  const tail = result.catch(() => undefined);
+  patchQueues.set(noteId, tail);
+  void tail.then(() => {
+    if (patchQueues.get(noteId) === tail) patchQueues.delete(noteId);
+  });
+  return result;
+}
 
 function remember(note: WorkspaceNote): void {
   noteCache.set(note.id, { ...noteCache.get(note.id), ...note });
@@ -105,17 +117,23 @@ export const apiAdapter: WorkspaceAdapter = {
   },
 
   // 404 = nota não existe (undefined); qualquer outro erro sobe.
-  async getNote(noteId: string): Promise<WorkspaceNote | undefined> {
-    try {
-      const note = await apiClient<WorkspaceNote>(`/api/notes/${noteId}`);
-      // Nova leitura do servidor: o próximo salvamento não deve ser descartado como "igual"
-      lastSentContent.delete(noteId);
-      remember(note);
-      return note;
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 404) return undefined;
-      throw err;
-    }
+  // Entra na mesma fila dos PATCH da nota: o GET só sai depois dos PATCH pendentes terminarem
+  // (senão devolveria o conteúdo antigo, ex.: voltar para a nota enquanto o salvamento ao sair
+  // dela ainda está em andamento) e os PATCH seguintes esperam por ele.
+  getNote(noteId: string): Promise<WorkspaceNote | undefined> {
+    return enqueue(noteId, async () => {
+      try {
+        const note = await apiClient<WorkspaceNote>(`/api/notes/${noteId}`);
+        // Nova leitura do servidor: o próximo salvamento não deve ser descartado como "igual".
+        // Como o GET está na fila, nenhum PATCH roda em paralelo com este reset.
+        lastSentContent.delete(noteId);
+        remember(note);
+        return note;
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 404) return undefined;
+        throw err;
+      }
+    });
   },
 
   async createNote(workspaceId: string, title: string, sectionId?: string | null): Promise<WorkspaceNote> {
@@ -128,16 +146,7 @@ export const apiAdapter: WorkspaceAdapter = {
   },
 
   updateNote(noteId: string, patch: NoteUpdate): Promise<WorkspaceNote> {
-    const previous = patchQueues.get(noteId) ?? Promise.resolve();
-    // Roda depois da anterior, mesmo que ela tenha falhado
-    const run = () => patchNote(noteId, patch);
-    const result = previous.then(run, run);
-    const tail = result.catch(() => undefined);
-    patchQueues.set(noteId, tail);
-    void tail.then(() => {
-      if (patchQueues.get(noteId) === tail) patchQueues.delete(noteId);
-    });
-    return result;
+    return enqueue(noteId, () => patchNote(noteId, patch));
   },
 
   async moveNoteToSection(noteId: string, sectionId: string | null): Promise<WorkspaceNote> {
