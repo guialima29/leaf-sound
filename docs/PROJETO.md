@@ -2,7 +2,7 @@
 
 > Estado analisado em 2026-11-03 (commit `ab863db`, branch `main`).
 >
-> ⚠️ **Este documento descreve o código antes das correções.** Na branch `fix/backlog-correcoes` vários pontos já mudaram: o `lib/storage.ts` não existe mais, a partitura salva sozinha, os acordes estão corrigidos, as fontes e a paleta verde foram aplicadas, os favoritos existem e o lint passa. Do §11, já foram tratados os itens 1–6, 10 e 11, e o 12 em parte (o CI existe, os testes ainda não). O que mudou está em [`PROGRESSO.md`](PROGRESSO.md).
+> ⚠️ **Este documento descreve o código antes das correções.** Na branch `fix/backlog-correcoes` vários pontos já mudaram: o `lib/storage.ts` não existe mais, a partitura salva sozinha, os acordes estão corrigidos, as fontes e a paleta verde foram aplicadas, os favoritos existem e o lint passa. Do §11, já foram tratados os itens 1–6, 10 e 11, e o 12 em parte (o CI existe, os testes ainda não). O backlog T01–T11 está concluído (2026-11-07). O que mudou está em [`PROGRESSO.md`](PROGRESSO.md) e o contrato da API em [`API.md`](API.md).
 > Complementa o planejamento GSD em [`.planning/`](../.planning/) — aqui está **o que o código faz hoje**; lá está **o que se planejou fazer**.
 
 ---
