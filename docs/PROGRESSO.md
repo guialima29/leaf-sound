@@ -1,6 +1,6 @@
 # LeafSound — Progresso do backlog de correções
 
-> Última atualização: 2026-11-07 (backlog T01–T11 concluído).
+> Última atualização: 2026-11-07 (backlog T01–T11 concluído e onda final de correções da revisão).
 > Backlog completo, com os passos de cada tarefa: [`TAREFAS.md`](TAREFAS.md). Visão geral do código **antes** das correções: [`PROJETO.md`](PROJETO.md).
 
 ## Resumo
@@ -33,6 +33,7 @@ Cada tarefa foi feita por um subagente (Sonnet) e passou por uma revisão indepe
 | **T09** Segurança | `2eabb73`, `5c15cf1`, `8468a4a`, `1fd95aa` | Headers `nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY` e `Permissions-Policy`, mais uma CSP em modo report-only. `middleware.tsx` virou `src/proxy.ts`, como pede o Next 16. Sem a chave do Clerk, o proxy deixa a requisição passar direto (antes, todas as rotas davam 500 no `npm run start`). Criado o `.env.example`. CI: `permissions: contents: read`, timeout de 15 min, `concurrency`, `actions/checkout@v7` e `setup-node@v7`. `npm audit fix` aplicado. |
 | **T10** API e contrato | `fe3d0d9`, `89b2508`, `e90bb1e`, `a0dd397`, `2d9bdda` | Adapters `apiAdapter` e `localAdapter`: um modo por build, **sem fallback silencioso**. `ApiError`, `getToken`/Bearer no `apiClient`, 401 redireciona para `/login`, 429 mostra mensagem. Erros visíveis: toasts (sonner) em pt-BR e badge "Erro ao salvar" com "Tentar novamente". Fila de gravação por nota (o GET também entra na fila), rascunhos em memória restaurados ao reabrir a nota. No modo API o editor sempre busca a nota completa com `getNote`. CSP report-only com `connect-src` da API. Criado `docs/API.md` (contrato com o backend Go). |
 | **T11** Documentos do GSD | `566fe55` + commit de docs/ | `ROADMAP.md` renumerado em 9 fases (a Fase 4 é este backlog, concluída). `REQUIREMENTS.md` com status por requisito (11 entregues, 6 parciais, 10 pendentes). `STATE.md` e `PROJECT.md` atualizados e apontando para `docs/`. `PROGRESSO.md` e `TAREFAS.md` com T10 e T11 concluídas. |
+| **Onda final** (revisão da branch inteira) | `f235285` + commit de docs/ | Excluir a nota aberta logo depois de editar não mostra mais "falha ao salvar" nem deixa rascunho (salvamento ao sair pulado e silencioso; `deleteNote` limpa o rascunho). `WorkspaceProvider` só sob `/workspace` (`/` e `/login` não chamam a API). Mover/renomear mescla a resposta no contexto; salvamento deduplicado não ressuscita `sectionId` antigo. `apiClient`: timeout de 15 s ("Tempo esgotado") e 200 com corpo vazio tratado como 204. CSP com `base-uri`, `form-action` e `object-src`. Toasts sempre claros e `next-themes` removido. `docs/API.md` corrigido (fila por nota, regra de `lastUpdate*` ao mover). |
 
 ### Decisões que eu tomei (confira e me diga se quiser mudar)
 
@@ -88,12 +89,9 @@ Não bloqueiam nada. Podem virar uma tarefa de "polimento" ou entrar quando algu
 | Limpeza (T08) | `tailwind.config.js` não tem efeito no Tailwind 4 (não há `@config`), mas não foi apagado. Componentes `ui/` sem uso, mantidos: `breadcrumb`, `input-group` e `textarea`. |
 | Segurança (T09) | 8 vulnerabilidades **moderadas** de `npm audit`, todas em ferramentas de lint (`minimatch` via `typescript-eslint` e `eslint-config-next`). Só seriam resolvidas com downgrade de major. Esperar uma correção upstream. |
 | Segurança (T09) | O proxy decide se usa o Clerk **na hora do build** (as `NEXT_PUBLIC_*` são embutidas no build). Quando o login entrar, a chave precisa ser obrigatória. As actions do CI usam a tag móvel `@v7`, não um SHA fixo. |
-| API (T10) | O `sonner` usa `useTheme` do `next-themes` sem `ThemeProvider`: os toasts podem ficar escuros em SO com tema escuro (passar `theme="light"`). O `next-themes` entrou como dependência só por causa do sonner. |
-| API (T10) | No modo API, o erro ao carregar workspaces gera toast também na tela `/login`. |
 | API (T10) | O título que falhou ao salvar só é re-tentado pelo botão do badge ou ao sair. Um PATCH de título em andamento que falha depois de sair da nota guarda o rascunho, mas não mostra toast. |
 | API (T10) | O toggle de favorito sem rede empilha toasts (sem `id`). |
-| API (T10) | O `apiClient` não tem timeout nem `AbortSignal`: um PATCH travado deixa a nota reaberta em "Carregando nota...". |
-| API (T10) | Erros permanentes (400/413/422) mantêm o rascunho para sempre. `deleteNote` não limpa o rascunho. Um 401 durante o flush de saída perde o rascunho (recarga). |
+| API (T10) | Erros permanentes (400/413/422) mantêm o rascunho para sempre. Um 401 durante o flush de saída perde o rascunho (recarga). |
 | API (T10) | Eco tardio do título com a API lenta (> 400ms) não resolvido (documentado). |
 | API (T10) | Modo API sem workspace padrão: se o backend devolver `[]`, não há workspace ativo (`docs/API.md` recomenda o backend criar "Principal"). |
 

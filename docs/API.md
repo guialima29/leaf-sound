@@ -123,6 +123,8 @@ Sem aninhamento (uma seção nunca contém outra).
 | `href` | string | sim | legado: `"/workspace?noteId=<id>"` |
 
 `lastUpdateDate`, `lastUpdateTime` e `href` são derivados: o backend deve calculá-los a cada resposta.
+`lastUpdateDate`/`lastUpdateTime` refletem a **última edição** da nota (ver a regra de `updatedAt` em 5.3):
+mover a nota de seção altera `updatedAt`, mas não esses dois campos.
 
 #### Resumo x nota completa (importante)
 
@@ -132,7 +134,10 @@ Sem aninhamento (uma seção nunca contém outra).
 - O frontend, no modo API, sempre chama `GET /api/notes/:id` antes de abrir o editor. Isso é
   obrigatório porque abrir o Editor.js com uma nota sem `content` faria o próximo autosave sobrescrever
   o conteúdo real no servidor com um documento vazio.
-- Respostas de `POST`/`PATCH` podem ser completas ou resumos; o frontend mescla com o que já tem.
+- Respostas de `POST`/`PATCH` podem ser completas ou resumos; o frontend mescla campo a campo com o que
+  já tem (`{ ...atual, ...resposta }`), então campos ausentes na resposta são preservados. A exceção é o
+  `POST` de criação, cuja resposta é usada como a nota/seção inteira (deve vir completa, sem `content`
+  no caso de nota recém-criada).
 
 ### 4.4 `content`: `OutputData` do Editor.js
 
@@ -249,8 +254,21 @@ o frontend **não** cria workspace padrão sozinho (isso só acontece no modo lo
 | `POST /api/workspaces/:id/notes` | `{ "title": string, "sectionId": string \| null }` | `201` `WorkspaceNote` | título em branco vira `"Sem título"`; `sectionId` precisa ser do mesmo workspace |
 | `GET /api/notes/:id` | | `200` `WorkspaceNote` **completa** | `404` se não existir. O frontend trata 404 como "Nota não encontrada" |
 | `PATCH /api/notes/:id` | `{ "title"?, "content"?, "description"?, "isFavorite"? }` | `200` `WorkspaceNote` | ver abaixo |
-| `PATCH /api/notes/:id/section` | `{ "sectionId": string \| null }` | `200` `WorkspaceNote` | `null` move para a raiz. Atualiza `updatedAt` |
+| `PATCH /api/notes/:id/section` | `{ "sectionId": string \| null }` | `200` `WorkspaceNote` | `null` move para a raiz. Atualiza `updatedAt` e **não** altera `lastUpdateDate`/`lastUpdateTime` (ver abaixo) |
 | `DELETE /api/notes/:id` | | `204` | |
+
+#### Datas de atualização (`updatedAt` x `lastUpdateDate`/`lastUpdateTime`)
+
+Esta é a regra que o modo local aplica hoje e que o backend deve reproduzir:
+
+| Operação | `updatedAt` | `lastUpdateDate` / `lastUpdateTime` |
+|---|---|---|
+| `PATCH /api/notes/:id` com `title`, `content` ou `description` | atualiza | atualizam (formatados a partir do novo `updatedAt`) |
+| `PATCH /api/notes/:id` só com `isFavorite` | não muda | não mudam |
+| `PATCH /api/notes/:id/section` (mover de seção) | atualiza | **não mudam** (continuam com a data/hora da última edição) |
+
+Ou seja, `lastUpdateDate`/`lastUpdateTime` mostram quando a nota foi editada pela última vez, enquanto
+`updatedAt` também é movimentado ao mover a nota (e é o que ordena a listagem).
 
 #### `PATCH /api/notes/:id`
 
@@ -263,8 +281,8 @@ o frontend **não** cria workspace padrão sozinho (isso só acontece no modo lo
   **não deve alterar** `updatedAt`, `lastUpdateDate` nem `lastUpdateTime`; favoritar não é edição e não
   pode mudar a ordenação por "última atualização". Se o PATCH tiver qualquer outro campo (`title`,
   `content`, `description`), o backend atualiza `updatedAt` normalmente.
-- **Ordem e concorrência:** o frontend serializa as gravações da mesma nota (um PATCH só sai depois que o
-  anterior terminou) e não reenvia conteúdo idêntico ao último enviado com sucesso. Mesmo assim o
+- **Ordem e concorrência:** o frontend serializa os `PATCH /api/notes/:id` e os `GET /api/notes/:id` da
+  mesma nota (cada um só sai depois que o anterior da fila terminou) e não reenvia conteúdo idêntico ao último enviado com sucesso. Mesmo assim o
   backend deve ser **idempotente** para o mesmo corpo: reenvios (tentativa manual após erro) são esperados.
   Não é exigido `ETag`/`If-Match` nesta versão.
 - Resposta: a nota atualizada (completa ou resumo).
@@ -292,6 +310,7 @@ O frontend usa **somente o status** para escolher a mensagem exibida ao usuário
 | `429` | limite de requisições excedido | toast "Muitas requisições, tente em instantes" |
 | `5xx` | erro no servidor | toast "Erro no servidor. Tente novamente em instantes." |
 | sem resposta (servidor fora do ar, CORS, rede) | | toast "Não foi possível conectar ao servidor." |
+| sem resposta em 15 s | | toast "Tempo esgotado: o servidor demorou demais para responder." |
 
 Em `429`, enviar o cabeçalho `Retry-After` (segundos) é recomendado; o frontend ainda não o usa. Para o
 autosave, qualquer erro mantém o conteúdo pendente no navegador e o badge mostra "Erro ao salvar"
@@ -302,8 +321,17 @@ Se o salvamento ao **sair** da nota falhar, o frontend mantém o conteúdo/títu
 rascunho **em memória** (por nota) e os restaura (com o aviso "Restauramos alterações não salvas desta
 nota") quando a nota é reaberta, reenviando-os pelo autosave normal. Esse rascunho **não** sobrevive a
 recarregar a página ou fechar a aba. Além disso, `GET /api/notes/:id` de uma nota só é emitido depois
-que os `PATCH` pendentes dessa nota terminam, então o backend recebe, por nota, no máximo uma requisição
-por vez vinda de um mesmo navegador.
+que os `PATCH /api/notes/:id` pendentes dessa nota terminam. Essa fila cobre só esses dois tipos de
+requisição: `GET /api/workspaces/:id/notes`, `PATCH /api/notes/:id/section` e `DELETE /api/notes/:id`
+não entram nela e podem chegar ao backend em paralelo com um `PATCH` da mesma nota.
+
+Se a nota for excluída enquanto há alterações pendentes (ex.: excluir pela sidebar logo depois de
+digitar), o salvamento ao sair é descartado, sem aviso e sem rascunho; um `404` nesse salvamento também é
+silencioso.
+
+Cada requisição tem tempo limite de **15 s**; ao estourar, o frontend mostra "Tempo esgotado: o servidor
+demorou demais para responder." e trata como falha de rede (o conteúdo continua pendente no navegador).
+Uma resposta `200` com corpo vazio é tratada como `204`.
 
 ## 7. Limites sugeridos
 
@@ -329,4 +357,8 @@ frontend não é fonte de confiança).
 | `NEXT_PUBLIC_API_URL` | liga o modo API (ver seção 1). A origem dessa URL é incluída no `connect-src` da política CSP (`next.config.ts`) |
 
 A política CSP está em modo `Content-Security-Policy-Report-Only`: violações só aparecem no console do
-navegador; a origem da API já é liberada no `connect-src`.
+navegador; a origem da API já é liberada no `connect-src` (e a política inclui `base-uri 'self'`,
+`form-action 'self'` e `object-src 'none'`).
+
+No modo API, as rotas `/` e `/login` não chamam a API: o carregamento de workspaces/notas só acontece
+sob `/workspace`.
