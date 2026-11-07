@@ -230,7 +230,7 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
 
   return (
     <div className="w-full flex flex-col pb-16">
-      {/* Top action bar without redundant EditorHeader */}
+      {/* Barra de ações superior */}
       <div className="flex items-center justify-between px-6 py-2.5 mb-6 border-b border-sidebar-border bg-background/80 backdrop-blur-xs sticky top-0 z-20">
         <div>
           {onBack && (

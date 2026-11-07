@@ -11,7 +11,7 @@ export default function Header() {
             <NavButton title="LeafSound"/>
             </div>
             <div className="inline-flex items-center space-x-4">
-                <Button asChild className="bg-primary hover:bg-primary-hover hover:scale-105 flex justify-self-end text-lg" style={{ width: "150px", height: "40px" }}>
+                <Button asChild className="hover:scale-105 flex justify-self-end text-lg" style={{ width: "150px", height: "40px" }}>
                     <Link href="/login">Login</Link>
                 </Button>
             </div>
