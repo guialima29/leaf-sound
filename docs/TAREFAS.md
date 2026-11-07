@@ -5,7 +5,7 @@
 
 ## Ordem e dependências
 
-> **Status em 2026-11-07:** **backlog concluído (T01–T11).** T01–T07 mergeadas na `main` (PR #1). T08–T11 na branch `fix/backlog-correcoes` (PR #2). O que foi feito, as decisões tomadas e as pendências que sobraram estão em [`PROGRESSO.md`](PROGRESSO.md).
+> **Status em 2026-11-07:** **backlog concluído (T01–T11).** T01–T07 mergeadas na `main` (PR #1). T08–T11 na branch `fix/backlog-correcoes` (PR #2 com T08–T11, aberto, aguardando merge). O que foi feito, as decisões tomadas e as pendências que sobraram estão em [`PROGRESSO.md`](PROGRESSO.md).
 
 | # | Tarefa | Tipo | Tamanho | Depende de | Status |
 |---|---|---|---|---|---|

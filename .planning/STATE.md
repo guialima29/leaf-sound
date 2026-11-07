@@ -37,7 +37,7 @@ See: `.planning/PROJECT.md`
   - T11: sincronização destes documentos (ROADMAP renumerado em 9 fases, REQUIREMENTS com status por requisito).
   - Requisitos entregues: DATA-01, EDIT-01, EDIT-03, EDIT-04, WORK-01, NOTE-01..05, CI-01. SEC-01..SEC-06 parciais. Pendentes: EDIT-02, EDIT-05, NOTE-06, AUTH-01..03, WORK-02, PERF-01..03.
   - `npm run lint` 0 erros e 0 avisos, `npx tsc --noEmit` e `npm run build` passam. **Nada foi testado no navegador** (checklist em `docs/PROGRESSO.md` §4).
-- **Git:** PR #1 (T01–T07) mergeado na `main` em 2026-11-04. PR #2 aberto com T08–T11 (branch `fix/backlog-correcoes`).
+- **Git:** PR #1 (T01–T07) mergeado na `main` em 2026-11-04. PR #2 com T08–T11, aberto, aguardando merge (branch `fix/backlog-correcoes`).
 - **Decisão de processo (minha, o usuário pode mudar):** continuar usando o GSD para as próximas fases, em vez de congelar `.planning/`. As fases 1–3 têm `PLAN.md`; a Fase 4 foi executada pelo fluxo `docs/TAREFAS.md` e não tem arquivos de plano do GSD.
 
 ## Next action

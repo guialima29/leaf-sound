@@ -10,7 +10,7 @@
 | Branch | `fix/backlog-correcoes` (criada a partir da `main` em `ab863db`) |
 | Concluídas | **T01–T11 (11 de 11)** |
 | Faltam | Nada no backlog. Restam as decisões da seção 3, o checklist manual (seção 4), a revisão final da branch e o roadmap (Fase 5, tablatura) |
-| Push / PR | T01–T07 na `main` pelo PR #1 (mergeado em 2026-11-04). T08–T11 no PR #2 (aberto), branch `fix/backlog-correcoes`. |
+| Push / PR | T01–T07 na `main` pelo PR #1 (mergeado em 2026-11-04). T08–T11 no PR #2, aberto, aguardando merge (branch `fix/backlog-correcoes`). |
 | Testado no navegador | **Não.** Só lint, `tsc` e build. Use o checklist da seção 4. |
 | Estado da build | `npm run lint` 0 erros e 0 avisos · `npx tsc --noEmit` ok · `npm run build` ok |
 
@@ -32,7 +32,7 @@ Cada tarefa foi feita por um subagente (Sonnet) e passou por uma revisão indepe
 | **T08** Limpeza | `e0ac70c`, `fbe4d5c`, `5430c5e` | Apagados os componentes sem uso (`CardBeneficio`, `CardCreateNote`, `CreateNoteCard`, `EditorHeader`, `nav-main`, `nav-projects`), o hook `useDebounce` e as constantes `constBeneficios`, `constNoteCards` e `notesDemo.json`. Removidas as dependências `@shadcn/ui`, `lucide`, `use-debounce`, `react-textarea-autosize`, `cn` e `@tanstack/react-query`. O pacote `cn` **estava** em uso em 9 componentes `ui/`, que agora usam `@/lib/utils`. `QueryProvider` virou `AppProviders`. O menu de contexto da nota agora é um componente único (`note-context-menu.tsx`), usado nas 3 listas, com o "Mover" igual em todas. `RegisterArea` foi mantido. |
 | **T09** Segurança | `2eabb73`, `5c15cf1`, `8468a4a`, `1fd95aa` | Headers `nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY` e `Permissions-Policy`, mais uma CSP em modo report-only. `middleware.tsx` virou `src/proxy.ts`, como pede o Next 16. Sem a chave do Clerk, o proxy deixa a requisição passar direto (antes, todas as rotas davam 500 no `npm run start`). Criado o `.env.example`. CI: `permissions: contents: read`, timeout de 15 min, `concurrency`, `actions/checkout@v7` e `setup-node@v7`. `npm audit fix` aplicado. |
 | **T10** API e contrato | `fe3d0d9`, `89b2508`, `e90bb1e`, `a0dd397`, `2d9bdda` | Adapters `apiAdapter` e `localAdapter`: um modo por build, **sem fallback silencioso**. `ApiError`, `getToken`/Bearer no `apiClient`, 401 redireciona para `/login`, 429 mostra mensagem. Erros visíveis: toasts (sonner) em pt-BR e badge "Erro ao salvar" com "Tentar novamente". Fila de gravação por nota (o GET também entra na fila), rascunhos em memória restaurados ao reabrir a nota. No modo API o editor sempre busca a nota completa com `getNote`. CSP report-only com `connect-src` da API. Criado `docs/API.md` (contrato com o backend Go). |
-| **T11** Documentos do GSD | este commit | `ROADMAP.md` renumerado em 9 fases (a Fase 4 é este backlog, concluída). `REQUIREMENTS.md` com status por requisito (11 entregues, 6 parciais, 10 pendentes). `STATE.md` e `PROJECT.md` atualizados e apontando para `docs/`. `PROGRESSO.md` e `TAREFAS.md` com T10 e T11 concluídas. |
+| **T11** Documentos do GSD | `566fe55` + commit de docs/ | `ROADMAP.md` renumerado em 9 fases (a Fase 4 é este backlog, concluída). `REQUIREMENTS.md` com status por requisito (11 entregues, 6 parciais, 10 pendentes). `STATE.md` e `PROJECT.md` atualizados e apontando para `docs/`. `PROGRESSO.md` e `TAREFAS.md` com T10 e T11 concluídas. |
 
 ### Decisões que eu tomei (confira e me diga se quiser mudar)
 
@@ -111,7 +111,7 @@ Não bloqueiam nada. Podem virar uma tarefa de "polimento" ou entrar quando algu
 1. **T08 (já decidido por mim, pode mudar):** o `RegisterArea` foi mantido. Se não for usar, é só apagar `src/components/RegisterArea/`.
 2. **T11 (já decidido por mim, pode mudar):** continuar usando o GSD. O `.planning/` foi sincronizado com o código. Se preferir congelá-lo, é só marcá-lo como "histórico" e usar `docs/` como fonte da verdade.
 3. **T06 (revisão):** gostou do verde só nas ações e do `#3B8226`? Ou quer a sidebar verde ou o tom original?
-4. **Push / PR:** o PR #2 (T08–T11) está aberto. Falta o push dos commits novos (T10 e T11) e a revisão final antes do merge. O CI roda no PR.
+4. **Push / PR:** PR #2 com T08–T11, aberto, aguardando merge. Falta só o merge por você (depois da revisão final); depois, apagar a branch `fix/backlog-correcoes`. O CI roda no PR.
 
 ---
 
