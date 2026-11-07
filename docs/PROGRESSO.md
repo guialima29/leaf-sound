@@ -1,6 +1,6 @@
 # LeafSound — Progresso do backlog de correções
 
-> Última atualização: 2026-11-03.
+> Última atualização: 2026-11-07.
 > Backlog completo, com os passos de cada tarefa: [`TAREFAS.md`](TAREFAS.md). Visão geral do código **antes** das correções: [`PROJETO.md`](PROJETO.md).
 
 ## Resumo
@@ -8,9 +8,9 @@
 | | |
 |---|---|
 | Branch | `fix/backlog-correcoes` (criada a partir da `main` em `ab863db`) |
-| Concluídas | T01, T02, T03, T04, T05, T06, T07 (7 de 11) |
-| Faltam | T08, T09, T10, T11 |
-| Push / PR | **Ainda não feitos.** Nada saiu da sua máquina. |
+| Concluídas | T01–T07 (PR #1, mergeado em 2026-11-04), T08 e T09 (9 de 11) |
+| Faltam | T10, T11 |
+| Push / PR | T01–T07 na `main` pelo PR #1. T08–T09 ainda só na branch local. |
 | Testado no navegador | **Não.** Só lint, `tsc` e build. Use o checklist da seção 4. |
 | Estado da build | `npm run lint` 0 erros e 0 avisos · `npx tsc --noEmit` ok · `npm run build` ok |
 
@@ -29,6 +29,8 @@ Cada tarefa foi feita por um subagente (Sonnet) e passou por uma revisão indepe
 | **T05** Acordes | `0a8a5ea` | Dicionário com os 21 acordes corretos (com pestanas) em `src/lib/editorjs/chords/guitar-chords.ts`. Normaliza a entrada (`am` → `Am`). Acorde desconhecido mostra um aviso com o link "Personalizar". O modal lista as cordas de 6 a 1, valida as casas (x ou 0–24), fecha com Esc e isola as teclas do Editor.js. |
 | **T06** Fontes e verde | `f1935d4` | `next/font` ligado no layout (Poppins no corpo, Libre Caslon nos títulos). Tokens: `--primary #3B8226`, `--primary-hover #43563B`, `--ring #5DAB3C`, `--foreground #2E332B`. Cores fixas trocadas por tokens. `theme.txt` apagado. |
 | **T07** Favoritos | `192f143` | `toggleFavorite` no contexto. Grupo "Favoritos" no topo da sidebar. Item no menu de contexto. Estrela no editor e no card. Favoritas primeiro no grid. Favoritar **não** altera a data de "última atualização". |
+| **T08** Limpeza | `e0ac70c`, `fbe4d5c`, `5430c5e` | Apagados os componentes sem uso (`CardBeneficio`, `CardCreateNote`, `CreateNoteCard`, `EditorHeader`, `nav-main`, `nav-projects`), o hook `useDebounce` e as constantes `constBeneficios`, `constNoteCards` e `notesDemo.json`. Removidas as dependências `@shadcn/ui`, `lucide`, `use-debounce`, `react-textarea-autosize`, `cn` e `@tanstack/react-query`. O pacote `cn` **estava** em uso em 9 componentes `ui/`, que agora usam `@/lib/utils`. `QueryProvider` virou `AppProviders`. O menu de contexto da nota agora é um componente único (`note-context-menu.tsx`), usado nas 3 listas, com o "Mover" igual em todas. `RegisterArea` foi mantido. |
+| **T09** Segurança | `2eabb73`, `5c15cf1`, `8468a4a`, `1fd95aa` | Headers `nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY` e `Permissions-Policy`, mais uma CSP em modo report-only. `middleware.tsx` virou `src/proxy.ts`, como pede o Next 16. Sem a chave do Clerk, o proxy deixa a requisição passar direto (antes, todas as rotas davam 500 no `npm run start`). Criado o `.env.example`. CI: `permissions: contents: read`, timeout de 15 min, `concurrency`, `actions/checkout@v7` e `setup-node@v7`. `npm audit fix` aplicado. |
 
 ### Decisões que eu tomei (confira e me diga se quiser mudar)
 
@@ -41,6 +43,9 @@ Cada tarefa foi feita por um subagente (Sonnet) e passou por uma revisão indepe
 | T05: sem banco de acordes externo | Você não respondeu. Evita dependência nova | Trocar o módulo do dicionário depois |
 | T06: verde só nas ações, sidebar neutra | Você não respondeu. Segue o "minimalista" do DESIGN.md | Mudar poucos tokens da sidebar |
 | T06: `--primary` = `#3B8226` em vez de `#5DAB3C` | Com `#5DAB3C`, texto branco dá 2.85:1 (reprova). Com `#3B8226`, 4.77:1 (passa no AA) | Ajustar 2 tokens |
+| T08: manter o `RegisterArea` | Você não respondeu, e apagar uma tela é a opção menos reversível | Um arquivo morto |
+| T08: trocar o pacote `cn` por `@/lib/utils` antes de remover | Fazem a mesma coisa (clsx + tailwind-merge). Fica um mecanismo só | Pequenas diferenças visuais nos `ui/`: conferir no navegador |
+| T09: o proxy só usa o Clerk se a chave existir | Sem chave, todas as rotas davam 500. Nenhuma rota é protegida hoje | Quando o login entrar, a chave precisa virar obrigatória |
 
 ---
 
@@ -50,16 +55,7 @@ Cada tarefa foi feita por um subagente (Sonnet) e passou por uma revisão indepe
 
 Os passos detalhados de cada uma estão em [`TAREFAS.md`](TAREFAS.md). Abaixo estão só as **pendências que surgiram durante a execução** e que devem ser somadas a cada tarefa.
 
-**T08 — Remover código não usado** (depende de você responder sobre o `RegisterArea`)
-- Também apagar o `EditorHeader`. Na T03 ele foi ajustado só para não importar o `storage`, mas continua sem uso.
-- Extrair o menu de contexto da nota (Abrir, Renomear, Mover, Favoritar, Excluir), que hoje está **copiado 3 vezes** em `nav-workspace-tree.tsx`. O "Mover" já diverge entre as cópias.
-- Remover a classe `.font-poppins` (provavelmente morta) e os overrides redundantes `bg-primary hover:bg-primary-hover` nos `<Button>` default. A variante `secondary` ficou quase igual à `default`: revisar.
-- O `@tanstack/react-query` está sem uso depois da T03. Decidir se remove.
-
-**T09 — Segurança**
-- `npm ci` acusa **18 vulnerabilidades** (16 moderadas, 2 altas). Rodar `npm audit` e atualizar.
-- `ci.yml`: adicionar `permissions: contents: read`, `timeout-minutes` e `concurrency` com `cancel-in-progress`.
-- Conferir, na primeira execução do Actions, se há aviso de deprecação das actions `@v4`.
+As pendências da T08 e da T09 já foram resolvidas (ver seção 1). O que sobrou delas está na tabela 2.2.
 
 **T10 — API e contrato**
 - **Importante:** com a API ligada, se `GET /api/workspaces/:id/notes` não devolver o `content`, o editor abre a nota vazia e o próximo autosave pode **apagar o conteúdo no servidor**. O contrato em `docs/API.md` precisa exigir notas completas na listagem, ou o editor precisa sempre chamar `getNote` no modo API.
@@ -67,6 +63,8 @@ Os passos detalhados de cada uma estão em [`TAREFAS.md`](TAREFAS.md). Abaixo es
 - `updateNote` com título vazio no modo API pula a API e falha se a nota não estiver no cache local.
 - Com a API lenta (> 400ms), o título pode "voltar" por um instante.
 - Documentar que `PATCH` só com `isFavorite` **não** deve alterar `updatedAt` no backend Go.
+- O "Mover" do menu de contexto não trata erro da `moveNoteToSection`. Incluir no tratamento de erros com toast.
+- A CSP report-only (T09) não tem `connect-src` para a URL da API (`NEXT_PUBLIC_API_URL`). Adicionar quando a API entrar.
 
 **T11 — Documentos do GSD**
 - Marcar como entregues: DATA-01, EDIT-01, EDIT-03, EDIT-04, WORK-01, NOTE-01..05 e CI-01.
@@ -92,6 +90,10 @@ Não bloqueiam nada. Podem virar uma tarefa de "polimento" ou entrar quando algu
 | Dados | `readList` não tem `try/catch` no `JSON.parse`: um `localStorage` corrompido gera uma exceção. |
 | Dados | `toggleFavorite` lê `notes` da closure. Um duplo clique muito rápido pode perder o segundo toggle. |
 | UI | `Pagination`: a página atual não é corrigida depois do ajuste (clamp). O diálogo de renomear seção perdeu a animação de saída. `use-mobile` cria um `matchMedia` a cada leitura. |
+| UI (T08) | O submenu de "Mover" das notas na raiz agora se chama "Mover para..." (antes "Mover para Seção"). Conferir no navegador os 9 componentes `ui/` que passaram do pacote `cn` para `@/lib/utils` (sidebar, tooltip, avatar, skeleton, sheet etc.). |
+| Limpeza (T08) | `tailwind.config.js` não tem efeito no Tailwind 4 (não há `@config`), mas não foi apagado. Componentes `ui/` sem uso, mantidos: `breadcrumb`, `input-group` e `textarea`. |
+| Segurança (T09) | 8 vulnerabilidades **moderadas** de `npm audit`, todas em ferramentas de lint (`minimatch` via `typescript-eslint` e `eslint-config-next`). Só seriam resolvidas com downgrade de major. Esperar uma correção upstream. |
+| Segurança (T09) | O proxy decide se usa o Clerk **na hora do build** (as `NEXT_PUBLIC_*` são embutidas no build). Quando o login entrar, a chave precisa ser obrigatória. As actions do CI usam a tag móvel `@v7`, não um SHA fixo. |
 
 ### 2.3 Fora do backlog (features novas, precisam de conversa antes)
 
@@ -104,7 +106,7 @@ Não bloqueiam nada. Podem virar uma tarefa de "polimento" ou entrar quando algu
 
 ## 3. Decisões que estão com você
 
-1. **T08:** a tela de cadastro (`RegisterArea`) vai ser usada? Se não, apago.
+1. **T08 (já decidido por mim, pode mudar):** o `RegisterArea` foi mantido. Se não for usar, é só apagar `src/components/RegisterArea/`.
 2. **T11:** continuar usando o GSD (`.planning/`) ou congelá-lo e usar `docs/` como referência?
 3. **T06 (revisão):** gostou do verde só nas ações e do `#3B8226`? Ou quer a sidebar verde ou o tom original?
 4. **Push / PR:** quando quiser, faço o push da branch e abro o PR para a `main`. O CI só roda depois disso.

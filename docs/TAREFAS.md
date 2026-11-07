@@ -5,7 +5,7 @@
 
 ## Ordem e dependências
 
-> **Status em 2026-11-03:** T01–T07 concluídas na branch `fix/backlog-correcoes`. O que foi feito, as decisões tomadas e as **pendências extras de T08–T11** estão em [`PROGRESSO.md`](PROGRESSO.md). Leia esse arquivo antes de executar as tarefas restantes.
+> **Status em 2026-11-07:** T01–T07 mergeadas na `main` (PR #1). T08 e T09 concluídas na branch `fix/backlog-correcoes`. O que foi feito, as decisões tomadas e as **pendências extras de T08–T11** estão em [`PROGRESSO.md`](PROGRESSO.md). Leia esse arquivo antes de executar as tarefas restantes.
 
 | # | Tarefa | Tipo | Tamanho | Depende de | Status |
 |---|---|---|---|---|---|
@@ -16,8 +16,8 @@
 | T05 | Acordes: corrigir o dicionário e avisar quando o acorde é desconhecido | bug | M | — | ✅ |
 | T06 | Fontes e paleta verde do DESIGN.md | visual | M | — | ✅ |
 | T07 | Favoritos (NOTE-04) | feature | M | T03 | ✅ |
-| T08 | Remover código e dependências não usados | limpeza | P | T03, T07 | ⏳ |
-| T09 | Headers de segurança + `middleware` → `proxy` | segurança | P | — | ⏳ |
+| T08 | Remover código e dependências não usados | limpeza | P | T03, T07 | ✅ |
+| T09 | Headers de segurança + `middleware` → `proxy` | segurança | P | — | ✅ |
 | T10 | API: erros visíveis em vez de fallback silencioso + contrato documentado | arquitetura | M | T03 | ⏳ |
 | T11 | Sincronizar os documentos do GSD com o código | docs | P | todas | ⏳ |
 
