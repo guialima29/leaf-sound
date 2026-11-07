@@ -106,6 +106,13 @@ export const apiAdapter: WorkspaceAdapter = {
     await apiClient(`/api/sections/${sectionId}?moveNotesToRoot=${moveNotesToRoot}`, {
       method: "DELETE",
     });
+    // Mantém o cache coerente com o servidor: um salvamento descartado por ser igual ao anterior
+    // devolve a nota do cache, e um sectionId antigo ali faria a nota sumir da sidebar.
+    for (const [id, note] of [...noteCache]) {
+      if (note.sectionId !== sectionId) continue;
+      if (moveNotesToRoot) noteCache.set(id, { ...note, sectionId: null });
+      else forget(id);
+    }
   },
 
   // NOTES

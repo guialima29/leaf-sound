@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { workspaceService, isApiMode, type NoteUpdate } from "@/lib/api/workspace-service";
 import { toast } from "sonner";
 import { reportError } from "@/lib/api/errors";
-import { getDraft, setDraft, clearDraft } from "@/lib/api/drafts";
+import { ApiError } from "@/lib/api/client";
+import { getDraft, setDraft, clearDraft, isNoteDeleted } from "@/lib/api/drafts";
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { WorkspaceNote } from "@/types/workspace";
 
@@ -241,9 +242,11 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
   // Salva conteúdo e título pendentes em uma única atualização. updateNote do contexto
   // grava pelo service de forma síncrona (modo local) e é do provider, que continua
   // montado, então o grid já enxerga a nota atualizada ao voltar para a listagem.
+  // Nota excluída (ex.: excluída pela sidebar logo depois de editar): não há o que salvar.
+  // No modo local o salvamento é silencioso (só console, como antes dos toasts).
   // No modo API a gravação é assíncrona e pode falhar: antes de tentar, o pendente vai para o
   // rascunho, que só é apagado depois do sucesso; se falhar, o toast avisa e a nota restaura
-  // o rascunho ao ser reaberta.
+  // o rascunho ao ser reaberta. 404 (nota não existe mais) é silencioso e não deixa rascunho.
   useEffect(() => {
     unmountedRef.current = false;
     return () => {
@@ -271,9 +274,10 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
       pendingTitleRef.current = null;
 
       if (Object.keys(patch).length === 0) return;
+      if (isNoteDeleted(noteId)) return;
 
       if (!isApiMode) {
-        updateNote(noteId, patch).catch((err) => {
+        updateNote(noteId, patch, { silent: true }).catch((err) => {
           console.error("Erro ao salvar pendências na troca/desmonte:", err);
         });
         return;
@@ -286,6 +290,12 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
           if (patch.title !== undefined) clearDraft(noteId, "title", patch.title);
         })
         .catch((err) => {
+          if (isNoteDeleted(noteId) || (err instanceof ApiError && err.status === 404)) {
+            // A nota não existe mais: nada a restaurar nem a avisar
+            clearDraft(noteId, "content");
+            clearDraft(noteId, "title");
+            return;
+          }
           reportError(
             err,
             "Não foi possível salvar as alterações ao sair da nota. Elas serão restauradas ao reabrir.",

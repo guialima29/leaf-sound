@@ -40,6 +40,18 @@ function redirectToLogin(): void {
   window.location.assign("/login");
 }
 
+// Tempo máximo de cada requisição (ms). Sem isso um servidor pendurado travaria a fila de gravações
+// da nota (e a reabertura dela) para sempre. Estourar vira um erro "TimeoutError" (ver errors.ts).
+export const REQUEST_TIMEOUT_MS = 15000;
+
+function withTimeout(signal: AbortSignal | null | undefined): AbortSignal | undefined {
+  if (typeof AbortSignal === "undefined" || typeof AbortSignal.timeout !== "function") {
+    return signal ?? undefined;
+  }
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
 export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers, ...customConfig } = options;
 
@@ -68,6 +80,7 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
 
   const config: RequestInit = {
     ...customConfig,
+    signal: withTimeout(customConfig.signal),
     headers: {
       ...defaultHeaders,
       ...headers,
@@ -84,10 +97,13 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
     throw new ApiError(response.status, errorBody || response.statusText);
   }
 
-  // Se a resposta for 204 No Content, retorna vazio
+  // 204 No Content ou 200 sem corpo: retorna vazio (response.json() lançaria "Unexpected end of JSON input")
   if (response.status === 204) {
     return {} as T;
   }
-
-  return response.json();
+  const text = await response.text();
+  if (!text.trim()) {
+    return {} as T;
+  }
+  return JSON.parse(text) as T;
 }

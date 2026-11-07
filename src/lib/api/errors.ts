@@ -16,6 +16,10 @@ export function describeError(err: unknown): string {
     if (err.status >= 500) return "Erro no servidor. Tente novamente em instantes.";
     return `Erro inesperado do servidor (${err.status}).`;
   }
+  // AbortSignal.timeout do apiClient estourou (servidor não respondeu a tempo)
+  if (err instanceof Error && err.name === "TimeoutError") {
+    return "Tempo esgotado: o servidor demorou demais para responder.";
+  }
   // fetch rejeitado (servidor fora do ar, CORS, sem internet)
   if (err instanceof TypeError) return "Não foi possível conectar ao servidor.";
   if (err instanceof Error && err.message) return err.message;

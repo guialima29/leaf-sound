@@ -19,6 +19,9 @@ const connectSrc = ["'self'", apiOrigin()].filter(Boolean).join(" ");
 // o header `Content-Security-Policy` e restringir `unsafe-inline`/`unsafe-eval`.
 const cspReportOnly = [
   "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
   `connect-src ${connectSrc}`,
   "frame-src https://www.youtube-nocookie.com",
   "img-src 'self' data: https:",

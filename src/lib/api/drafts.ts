@@ -11,6 +11,20 @@ export interface NoteDraft {
 
 const drafts = new Map<string, NoteDraft>();
 
+// Notas excluídas nesta sessão (vale nos dois modos). Evita guardar rascunho de uma nota que
+// não existe mais e permite ao editor pular o salvamento ao sair de uma nota recém-excluída.
+// Os ids são únicos e nunca reaparecem, então o conjunto não precisa ser limpo.
+const deletedNotes = new Set<string>();
+
+export function markNoteDeleted(noteId: string): void {
+  deletedNotes.add(noteId);
+  drafts.delete(noteId);
+}
+
+export function isNoteDeleted(noteId: string): boolean {
+  return deletedNotes.has(noteId);
+}
+
 export function getDraft(noteId: string): NoteDraft | undefined {
   if (!isApiMode) return undefined;
   const draft = drafts.get(noteId);
@@ -20,7 +34,7 @@ export function getDraft(noteId: string): NoteDraft | undefined {
 // Grava o rascunho. Com `onlyIfAbsent`, não sobrescreve o que já existe (usado por falhas
 // atrasadas de envios antigos, para não trocar um rascunho mais novo por um antigo).
 export function setDraft(noteId: string, patch: NoteDraft, onlyIfAbsent = false): void {
-  if (!isApiMode) return;
+  if (!isApiMode || deletedNotes.has(noteId)) return;
   const next: NoteDraft = { ...drafts.get(noteId) };
   if (patch.content !== undefined && !(onlyIfAbsent && next.content !== undefined)) next.content = patch.content;
   if (patch.title !== undefined && !(onlyIfAbsent && next.title !== undefined)) next.title = patch.title;

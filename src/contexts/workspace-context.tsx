@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { Workspace, Section, WorkspaceNote } from "@/types/workspace";
 import { workspaceService, type NoteUpdate } from "@/lib/api/workspace-service";
 import { reportError } from "@/lib/api/errors";
+import { markNoteDeleted } from "@/lib/api/drafts";
 
 interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
@@ -148,7 +149,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const updated = await withToast("Não foi possível renomear a seção", () =>
       workspaceService.renameSection(id, name)
     );
-    setSections((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    setSections((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
     return updated;
   }, []);
 
@@ -179,7 +180,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const updated = await withToast("Não foi possível renomear a nota", () =>
       workspaceService.renameNote(id, newTitle)
     );
-    setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
     return updated;
   }, []);
 
@@ -204,12 +205,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const updated = await withToast("Não foi possível mover a nota", () =>
       workspaceService.moveNoteToSection(noteId, sectionId)
     );
-    setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
+    setNotes((prev) => prev.map((n) => (n.id === noteId ? { ...n, ...updated } : n)));
     return updated;
   }, []);
 
   const deleteNote = useCallback(async (id: string) => {
     await withToast("Não foi possível excluir a nota", () => workspaceService.deleteNote(id));
+    // Nota excluída: descarta o rascunho e impede que o editor aberto a regrave ao ser desmontado
+    markNoteDeleted(id);
     setNotes((prev) => prev.filter((n) => n.id !== id));
   }, []);
 
