@@ -9,7 +9,6 @@ import {
   FolderOpen,
   Pencil,
   Trash2,
-  MoveRight,
   FilePlus,
   Star,
 } from "lucide-react";
@@ -19,9 +18,6 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
@@ -53,6 +49,7 @@ import { Section, WorkspaceNote } from "@/types/workspace";
 import { SectionCreateDialog } from "@/components/SectionCreateDialog";
 import { SectionDeleteDialog } from "@/components/SectionDeleteDialog";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
+import { NoteContextMenuContent } from "@/components/note-context-menu";
 
 export function NavWorkspaceTree() {
   const router = useRouter();
@@ -94,12 +91,20 @@ export function NavWorkspaceTree() {
     });
   };
 
-  // Item de menu de contexto "Favoritar" / "Remover dos favoritos"
-  const renderFavoriteMenuItem = (note: WorkspaceNote) => (
-    <ContextMenuItem onClick={() => handleToggleFavorite(note.id)}>
-      <Star className={`size-4 mr-2 ${note.isFavorite ? "fill-primary text-primary" : ""}`} />
-      <span>{note.isFavorite ? "Remover dos favoritos" : "Favoritar"}</span>
-    </ContextMenuItem>
+  // Menu de contexto da nota (o mesmo nas notas das seções, da raiz e dos favoritos)
+  const renderNoteMenu = (note: WorkspaceNote) => (
+    <NoteContextMenuContent
+      note={note}
+      sections={sections}
+      onOpen={handleOpenNote}
+      onRename={(n) => {
+        setEditingNote(n);
+        setNoteNewTitle(n.title);
+      }}
+      onToggleFavorite={handleToggleFavorite}
+      onMove={moveNoteToSection}
+      onDelete={setDeletingNote}
+    />
   );
 
   // Drag and Drop handlers
@@ -186,61 +191,7 @@ export function NavWorkspaceTree() {
                 </ContextMenuTrigger>
 
                 {/* MENU DE CONTEXTO DA NOTA FAVORITA */}
-                <ContextMenuContent className="w-48">
-                  <ContextMenuItem onClick={() => handleOpenNote(note.id)}>
-                    <FileText className="size-4 mr-2" />
-                    <span>Abrir Nota</span>
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    onClick={() => {
-                      setEditingNote(note);
-                      setNoteNewTitle(note.title);
-                    }}
-                  >
-                    <Pencil className="size-4 mr-2" />
-                    <span>Renomear</span>
-                  </ContextMenuItem>
-                  {renderFavoriteMenuItem(note)}
-
-                  {(sections.length > 0 || note.sectionId) && (
-                    <ContextMenuSub>
-                      <ContextMenuSubTrigger>
-                        <MoveRight className="size-4 mr-2" />
-                        <span>Mover para...</span>
-                      </ContextMenuSubTrigger>
-                      <ContextMenuSubContent className="w-44">
-                        {note.sectionId && (
-                          <ContextMenuItem onClick={() => moveNoteToSection(note.id, null)}>
-                            <span>Raiz (Sem seção)</span>
-                          </ContextMenuItem>
-                        )}
-                        {note.sectionId && sections.some((s) => s.id !== note.sectionId) && (
-                          <ContextMenuSeparator />
-                        )}
-                        {sections
-                          .filter((s) => s.id !== note.sectionId)
-                          .map((s) => (
-                            <ContextMenuItem
-                              key={s.id}
-                              onClick={() => moveNoteToSection(note.id, s.id)}
-                            >
-                              <Folder className="size-3.5 mr-2 text-amber-500" />
-                              <span className="truncate">{s.name}</span>
-                            </ContextMenuItem>
-                          ))}
-                      </ContextMenuSubContent>
-                    </ContextMenuSub>
-                  )}
-
-                  <ContextMenuSeparator />
-                  <ContextMenuItem
-                    onClick={() => setDeletingNote(note)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="size-4 mr-2" />
-                    <span>Excluir</span>
-                  </ContextMenuItem>
-                </ContextMenuContent>
+                {renderNoteMenu(note)}
               </ContextMenu>
             ))}
           </SidebarMenu>
@@ -327,55 +278,7 @@ export function NavWorkspaceTree() {
                                 </ContextMenuTrigger>
 
                                 {/* MENU DE CONTEXTO DA NOTA */}
-                                <ContextMenuContent className="w-48">
-                                  <ContextMenuItem onClick={() => handleOpenNote(note.id)}>
-                                    <FileText className="size-4 mr-2" />
-                                    <span>Abrir Nota</span>
-                                  </ContextMenuItem>
-                                  <ContextMenuItem
-                                    onClick={() => {
-                                      setEditingNote(note);
-                                      setNoteNewTitle(note.title);
-                                    }}
-                                  >
-                                    <Pencil className="size-4 mr-2" />
-                                    <span>Renomear</span>
-                                  </ContextMenuItem>
-                                  {renderFavoriteMenuItem(note)}
-
-                                  <ContextMenuSub>
-                                    <ContextMenuSubTrigger>
-                                      <MoveRight className="size-4 mr-2" />
-                                      <span>Mover para...</span>
-                                    </ContextMenuSubTrigger>
-                                    <ContextMenuSubContent className="w-44">
-                                      <ContextMenuItem onClick={() => moveNoteToSection(note.id, null)}>
-                                        <span>Raiz (Sem seção)</span>
-                                      </ContextMenuItem>
-                                      <ContextMenuSeparator />
-                                      {sections
-                                        .filter((s) => s.id !== section.id)
-                                        .map((s) => (
-                                          <ContextMenuItem
-                                            key={s.id}
-                                            onClick={() => moveNoteToSection(note.id, s.id)}
-                                          >
-                                            <Folder className="size-3.5 mr-2 text-amber-500" />
-                                            <span className="truncate">{s.name}</span>
-                                          </ContextMenuItem>
-                                        ))}
-                                    </ContextMenuSubContent>
-                                  </ContextMenuSub>
-
-                                  <ContextMenuSeparator />
-                                  <ContextMenuItem
-                                    onClick={() => setDeletingNote(note)}
-                                    className="text-red-600 focus:text-red-600"
-                                  >
-                                    <Trash2 className="size-4 mr-2" />
-                                    <span>Excluir</span>
-                                  </ContextMenuItem>
-                                </ContextMenuContent>
+                                {renderNoteMenu(note)}
                               </ContextMenu>
                             ))
                           )}
@@ -454,51 +357,7 @@ export function NavWorkspaceTree() {
                   </ContextMenuTrigger>
 
                   {/* MENU DE CONTEXTO DA NOTA NA RAIZ */}
-                  <ContextMenuContent className="w-48">
-                    <ContextMenuItem onClick={() => handleOpenNote(note.id)}>
-                      <FileText className="size-4 mr-2" />
-                      <span>Abrir Nota</span>
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        setEditingNote(note);
-                        setNoteNewTitle(note.title);
-                      }}
-                    >
-                      <Pencil className="size-4 mr-2" />
-                      <span>Renomear</span>
-                    </ContextMenuItem>
-                    {renderFavoriteMenuItem(note)}
-
-                    {sections.length > 0 && (
-                      <ContextMenuSub>
-                        <ContextMenuSubTrigger>
-                          <MoveRight className="size-4 mr-2" />
-                          <span>Mover para Seção</span>
-                        </ContextMenuSubTrigger>
-                        <ContextMenuSubContent className="w-44">
-                          {sections.map((s) => (
-                            <ContextMenuItem
-                              key={s.id}
-                              onClick={() => moveNoteToSection(note.id, s.id)}
-                            >
-                              <Folder className="size-3.5 mr-2 text-amber-500" />
-                              <span className="truncate">{s.name}</span>
-                            </ContextMenuItem>
-                          ))}
-                        </ContextMenuSubContent>
-                      </ContextMenuSub>
-                    )}
-
-                    <ContextMenuSeparator />
-                    <ContextMenuItem
-                      onClick={() => setDeletingNote(note)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="size-4 mr-2" />
-                      <span>Excluir</span>
-                    </ContextMenuItem>
-                  </ContextMenuContent>
+                  {renderNoteMenu(note)}
                 </ContextMenu>
               ))
             )}
