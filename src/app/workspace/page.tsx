@@ -34,8 +34,12 @@ function WorkspaceContent() {
             <div className="flex flex-col items-center justify-center min-h-[500px] p-6">
               <EmptyNotes
                 onCreateNote={async () => {
-                  const newNote = await createNote("Nova Nota");
-                  router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
+                  try {
+                    const newNote = await createNote("Nova Nota");
+                    router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
+                  } catch (err) {
+                    console.error("Erro ao criar nota:", err);
+                  }
                 }}
               />
             </div>

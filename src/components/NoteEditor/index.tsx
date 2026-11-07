@@ -8,7 +8,8 @@ import TextEditor from "@/components/TextEditor";
 import Spinner from "@/components/Spinner";
 import { SpinnerBadge } from "@/components/SpinnerBadge";
 import { Button } from "@/components/ui/button";
-import { workspaceService, type NoteUpdate } from "@/lib/api/workspace-service";
+import { workspaceService, isApiMode, type NoteUpdate } from "@/lib/api/workspace-service";
+import { reportError } from "@/lib/api/errors";
 import { useWorkspace } from "@/contexts/workspace-context";
 import type { WorkspaceNote } from "@/types/workspace";
 
@@ -26,21 +27,25 @@ function extractDescription(data: OutputData): string {
 }
 
 // Resolve a nota uma única vez (o componente é recriado a cada troca de nota via
-// key={noteId} em workspace/page.tsx): primeiro da lista do contexto e, se ela ainda
-// não estiver lá (carga direta de /workspace?noteId=X), via workspaceService.getNote.
+// key={noteId} em workspace/page.tsx).
+// - Modo local: primeiro da lista do contexto (a lista local já traz o conteúdo) e, se ela
+//   ainda não estiver lá (carga direta de /workspace?noteId=X), via workspaceService.getNote.
+// - Modo API: SEMPRE busca a nota completa com getNote antes de montar o editor, porque a
+//   listagem pode vir sem `content` e um autosave sobre uma nota "vazia" apagaria o servidor.
 export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
   const { notes, isLoading } = useWorkspace();
   const contextNote = notes.find((n) => n.id === noteId);
-  // null = ainda carregando; { note: undefined } = nota não encontrada
-  const [loaded, setLoaded] = useState<{ note: WorkspaceNote | undefined } | null>(null);
+  // null = ainda carregando; { note: undefined } = nota não encontrada;
+  // { failed: true } = erro ao buscar (rede, 5xx...), com opção de tentar de novo
+  const [loaded, setLoaded] = useState<{ note: WorkspaceNote | undefined; failed?: boolean } | null>(null);
 
   // Padrão "ajustar estado durante o render" (sem setState em efeito)
-  if (loaded === null && contextNote) {
+  if (!isApiMode && loaded === null && contextNote) {
     setLoaded({ note: contextNote });
   }
 
-  // Só busca fora do contexto depois que o contexto terminou de carregar
-  const needsFetch = loaded === null && !contextNote && !isLoading;
+  // Modo local: só busca fora do contexto depois que o contexto terminou de carregar
+  const needsFetch = loaded === null && (isApiMode || (!contextNote && !isLoading));
   useEffect(() => {
     if (!needsFetch) return;
     let cancelled = false;
@@ -50,8 +55,9 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
         if (!cancelled) setLoaded((prev) => prev ?? { note });
       })
       .catch((err) => {
-        console.error("Erro ao carregar nota:", err);
-        if (!cancelled) setLoaded((prev) => prev ?? { note: undefined });
+        if (cancelled) return;
+        reportError(err, "Não foi possível carregar a nota", `load-note-${noteId}`);
+        setLoaded((prev) => prev ?? { note: undefined, failed: true });
       });
     return () => {
       cancelled = true;
@@ -63,6 +69,25 @@ export function NoteEditor({ noteId, onBack }: NoteEditorProps) {
       <div className="flex flex-col items-center justify-center gap-3 py-24">
         <Spinner className="size-6 text-primary" />
         <p className="text-sm text-muted-foreground">Carregando nota...</p>
+      </div>
+    );
+  }
+
+  if (loaded.failed) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <p className="text-muted-foreground">Não foi possível carregar a nota.</p>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setLoaded(null)} className="cursor-pointer">
+            Tentar novamente
+          </Button>
+          {onBack && (
+            <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 cursor-pointer">
+              <ArrowLeft className="size-3.5" />
+              <span>Ver todas as notas</span>
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -113,11 +138,38 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
   }
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  // Falha ao salvar (API): o que não foi salvo continua pendente (refs abaixo) e é reenviado
+  // no próximo salvamento, ao trocar de nota ou pelo botão "Tentar novamente" do badge.
+  const [saveError, setSaveError] = useState(false);
+  const hadSaveErrorRef = useRef(false);
 
   const pendingDataRef = useRef<OutputData | null>(null);
   const pendingTitleRef = useRef<string | null>(null);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const titleTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Marca a falha de salvamento. O toast aparece só na primeira falha de uma sequência
+  // (o autosave tenta de novo a cada edição; o badge continua mostrando o erro).
+  const markSaveFailed = useCallback(
+    (err: unknown) => {
+      setSaveError(true);
+      if (hadSaveErrorRef.current) {
+        console.error("Erro ao salvar nota:", err);
+        return;
+      }
+      hadSaveErrorRef.current = true;
+      reportError(err, "Não foi possível salvar a nota", `save-note-${noteId}`);
+    },
+    [noteId]
+  );
+
+  // Limpa o erro quando não resta nada pendente (conteúdo e título já foram enviados)
+  const markSaveOkIfIdle = useCallback(() => {
+    if (pendingDataRef.current === null && pendingTitleRef.current === null) {
+      hadSaveErrorRef.current = false;
+      setSaveError(false);
+    }
+  }, []);
 
   // Flush save function (conteúdo)
   const flushSave = useCallback(
@@ -132,18 +184,24 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
 
       try {
         setIsSaving(true);
-        await updateNote(noteId, { content: data, description: extractDescription(data) });
+        await updateNote(
+          noteId,
+          { content: data, description: extractDescription(data) },
+          { silent: true }
+        );
         // Só limpa o pendente se ninguém digitou mais nada durante o salvamento
         if (pendingDataRef.current === data) pendingDataRef.current = null;
         setLastSaved(new Date());
+        markSaveOkIfIdle();
       } catch (err) {
-        console.error("Erro ao salvar nota:", err);
+        // O conteúdo continua em pendingDataRef para a próxima tentativa
+        markSaveFailed(err);
       } finally {
         // Continua "Editando..." se já há um novo salvamento agendado
         setIsSaving(saveTimerRef.current !== null);
       }
     },
-    [noteId, updateNote]
+    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle]
   );
 
   // Flush on unmount (a troca de nota desmonta o componente via key={noteId}).
@@ -201,6 +259,22 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
     [flushSave]
   );
 
+  // Envia o título; se falhar, ele volta a ficar pendente (a menos que o usuário já tenha digitado outro)
+  const sendTitle = useCallback(
+    async (title: string) => {
+      try {
+        setLastSentTitle(title);
+        await updateNote(noteId, { title }, { silent: true });
+        setLastSaved(new Date());
+        markSaveOkIfIdle();
+      } catch (err) {
+        if (pendingTitleRef.current === null) pendingTitleRef.current = title;
+        markSaveFailed(err);
+      }
+    },
+    [noteId, updateNote, markSaveFailed, markSaveOkIfIdle]
+  );
+
   // Handle title changes with 400ms debounce and sync
   const handleTitleChange = useCallback(
     (newTitle: string) => {
@@ -210,23 +284,29 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
         clearTimeout(titleTimerRef.current);
       }
 
-      titleTimerRef.current = setTimeout(async () => {
+      titleTimerRef.current = setTimeout(() => {
         titleTimerRef.current = null;
         const title = pendingTitleRef.current;
         pendingTitleRef.current = null;
         // Título vazio/só espaços mantém o anterior no armazenamento (nada a enviar)
         if (title === null || !title.trim()) return;
-        try {
-          setLastSentTitle(title);
-          await updateNote(noteId, { title });
-          setLastSaved(new Date());
-        } catch (err) {
-          console.error("Erro ao sincronizar título da nota:", err);
-        }
+        void sendTitle(title);
       }, 400);
     },
-    [noteId, updateNote]
+    [sendTitle]
   );
+
+  // Botão "Tentar novamente" do badge: reenvia o que ficou pendente (título e conteúdo)
+  const handleRetry = useCallback(() => {
+    if (titleTimerRef.current) {
+      clearTimeout(titleTimerRef.current);
+      titleTimerRef.current = null;
+    }
+    const title = pendingTitleRef.current;
+    pendingTitleRef.current = null;
+    if (title !== null && title.trim()) void sendTitle(title);
+    if (pendingDataRef.current) void flushSave();
+  }, [sendTitle, flushSave]);
 
   return (
     <div className="w-full flex flex-col pb-16">
@@ -264,7 +344,13 @@ function NoteEditorBody({ noteId, initialNote, onBack }: NoteEditorBodyProps) {
               className={`size-4 ${isFavorite ? "fill-primary text-primary" : "text-muted-foreground"}`}
             />
           </Button>
-          <SpinnerBadge isSaving={isSaving} lastSaved={lastSaved} className="mb-0" />
+          <SpinnerBadge
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+            hasError={saveError}
+            onRetry={handleRetry}
+            className="mb-0"
+          />
         </div>
       </div>
 

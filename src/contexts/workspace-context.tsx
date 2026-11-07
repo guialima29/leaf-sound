@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Workspace, Section, WorkspaceNote } from "@/types/workspace";
 import { workspaceService, type NoteUpdate } from "@/lib/api/workspace-service";
+import { reportError } from "@/lib/api/errors";
 
 interface WorkspaceContextType {
   activeWorkspace: Workspace | null;
@@ -18,7 +19,8 @@ interface WorkspaceContextType {
   deleteSection: (id: string, moveNotesToRoot?: boolean) => Promise<void>;
   createNote: (title: string, sectionId?: string | null) => Promise<WorkspaceNote>;
   renameNote: (id: string, newTitle: string) => Promise<WorkspaceNote>;
-  updateNote: (id: string, patch: NoteUpdate) => Promise<WorkspaceNote>;
+  // silent: não mostra toast em caso de erro (o chamador trata, ex.: badge do autosave)
+  updateNote: (id: string, patch: NoteUpdate, options?: { silent?: boolean }) => Promise<WorkspaceNote>;
   toggleFavorite: (noteId: string) => Promise<WorkspaceNote>;
   moveNoteToSection: (noteId: string, sectionId: string | null) => Promise<WorkspaceNote>;
   deleteNote: (id: string) => Promise<void>;
@@ -26,6 +28,17 @@ interface WorkspaceContextType {
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
+
+// Os erros das operações continuam subindo para o chamador (que decide o que fazer na tela),
+// mas antes viram um toast em pt-BR. Em caso de sucesso nada é exibido.
+async function withToast<T>(action: string, run: () => Promise<T>, silent = false): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    if (!silent) reportError(err, action);
+    throw err;
+  }
+}
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
@@ -44,7 +57,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       setSections(fetchedSections);
       setNotes(fetchedNotes);
     } catch (err) {
-      console.error("Erro ao carregar dados da workspace:", err);
+      reportError(err, "Não foi possível carregar suas notas", "load-workspace-data");
     }
   }, []);
 
@@ -66,7 +79,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         setNotes([]);
       }
     } catch (err) {
-      console.error("Erro ao inicializar workspaces:", err);
+      reportError(err, "Não foi possível carregar seus workspaces", "load-workspaces");
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +107,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, [workspaces, loadWorkspaceData]);
 
   const createWorkspace = useCallback(async (name: string, description?: string) => {
-    const created = await workspaceService.createWorkspace(name, description);
+    const created = await withToast("Não foi possível criar o workspace", () =>
+      workspaceService.createWorkspace(name, description)
+    );
     setWorkspaces((prev) => [created, ...prev]);
     setActiveWorkspace(created);
     workspaceService.setActiveWorkspaceId(created.id);
@@ -104,7 +119,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteWorkspace = useCallback(async (id: string) => {
-    await workspaceService.deleteWorkspace(id);
+    await withToast("Não foi possível excluir o workspace", () => workspaceService.deleteWorkspace(id));
     const updated = workspaces.filter((w) => w.id !== id);
     setWorkspaces(updated);
     if (activeWorkspace?.id === id) {
@@ -122,19 +137,25 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const createSection = useCallback(async (name: string) => {
     if (!activeWorkspace) throw new Error("Nenhuma workspace ativa");
-    const created = await workspaceService.createSection(activeWorkspace.id, name);
+    const created = await withToast("Não foi possível criar a seção", () =>
+      workspaceService.createSection(activeWorkspace.id, name)
+    );
     setSections((prev) => [...prev, created]);
     return created;
   }, [activeWorkspace]);
 
   const renameSection = useCallback(async (id: string, name: string) => {
-    const updated = await workspaceService.renameSection(id, name);
+    const updated = await withToast("Não foi possível renomear a seção", () =>
+      workspaceService.renameSection(id, name)
+    );
     setSections((prev) => prev.map((s) => (s.id === id ? updated : s)));
     return updated;
   }, []);
 
   const deleteSection = useCallback(async (id: string, moveNotesToRoot = true) => {
-    await workspaceService.deleteSection(id, moveNotesToRoot);
+    await withToast("Não foi possível excluir a seção", () =>
+      workspaceService.deleteSection(id, moveNotesToRoot)
+    );
     setSections((prev) => prev.filter((s) => s.id !== id));
     if (moveNotesToRoot) {
       setNotes((prev) =>
@@ -147,19 +168,27 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const createNote = useCallback(async (title: string, sectionId?: string | null) => {
     if (!activeWorkspace) throw new Error("Nenhuma workspace ativa");
-    const created = await workspaceService.createNote(activeWorkspace.id, title, sectionId);
+    const created = await withToast("Não foi possível criar a nota", () =>
+      workspaceService.createNote(activeWorkspace.id, title, sectionId)
+    );
     setNotes((prev) => [created, ...prev]);
     return created;
   }, [activeWorkspace]);
 
   const renameNote = useCallback(async (id: string, newTitle: string) => {
-    const updated = await workspaceService.renameNote(id, newTitle);
+    const updated = await withToast("Não foi possível renomear a nota", () =>
+      workspaceService.renameNote(id, newTitle)
+    );
     setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
     return updated;
   }, []);
 
-  const updateNote = useCallback(async (id: string, patch: NoteUpdate) => {
-    const updated = await workspaceService.updateNote(id, patch);
+  const updateNote = useCallback(async (id: string, patch: NoteUpdate, options?: { silent?: boolean }) => {
+    const updated = await withToast(
+      "Não foi possível salvar a nota",
+      () => workspaceService.updateNote(id, patch),
+      options?.silent
+    );
     // Mescla para não perder campos (ex.: content) caso a API devolva a nota parcial
     setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, ...updated } : n)));
     return updated;
@@ -172,13 +201,15 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, [notes, updateNote]);
 
   const moveNoteToSection = useCallback(async (noteId: string, sectionId: string | null) => {
-    const updated = await workspaceService.moveNoteToSection(noteId, sectionId);
+    const updated = await withToast("Não foi possível mover a nota", () =>
+      workspaceService.moveNoteToSection(noteId, sectionId)
+    );
     setNotes((prev) => prev.map((n) => (n.id === noteId ? updated : n)));
     return updated;
   }, []);
 
   const deleteNote = useCallback(async (id: string) => {
-    await workspaceService.deleteNote(id);
+    await withToast("Não foi possível excluir a nota", () => workspaceService.deleteNote(id));
     setNotes((prev) => prev.filter((n) => n.id !== id));
   }, []);
 

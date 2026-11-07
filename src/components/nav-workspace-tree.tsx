@@ -91,6 +91,14 @@ export function NavWorkspaceTree() {
     });
   };
 
+  // Mover nota (menu e arrastar/soltar). O contexto já mostra o toast de erro; aqui só
+  // evitamos a promessa rejeitada sem tratamento.
+  const handleMove = (noteId: string, sectionId: string | null) => {
+    moveNoteToSection(noteId, sectionId).catch((err) => {
+      console.error("Erro ao mover nota:", err);
+    });
+  };
+
   // Menu de contexto da nota (o mesmo nas notas das seções, da raiz e dos favoritos)
   const renderNoteMenu = (note: WorkspaceNote) => (
     <NoteContextMenuContent
@@ -102,7 +110,7 @@ export function NavWorkspaceTree() {
         setNoteNewTitle(n.title);
       }}
       onToggleFavorite={handleToggleFavorite}
-      onMove={moveNoteToSection}
+      onMove={handleMove}
       onDelete={setDeletingNote}
     />
   );
@@ -119,7 +127,7 @@ export function NavWorkspaceTree() {
     setDragOverSectionId(null);
     const noteId = e.dataTransfer.getData("text/plain");
     if (noteId) {
-      moveNoteToSection(noteId, sectionId);
+      handleMove(noteId, sectionId);
     }
   };
 
@@ -129,7 +137,7 @@ export function NavWorkspaceTree() {
     setIsDragOverRoot(false);
     const noteId = e.dataTransfer.getData("text/plain");
     if (noteId) {
-      moveNoteToSection(noteId, null);
+      handleMove(noteId, null);
     }
   };
 
@@ -140,16 +148,25 @@ export function NavWorkspaceTree() {
 
   // Criar nota dentro de uma seção
   const handleCreateNoteInSection = async (sectionId: string) => {
-    const newNote = await createNote("Nova Nota", sectionId);
-    router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
+    try {
+      const newNote = await createNote("Nova Nota", sectionId);
+      router.push(`/workspace?noteId=${newNote.id}`, { scroll: false });
+    } catch (err) {
+      console.error("Erro ao criar nota na seção:", err);
+    }
   };
 
   // Submissão do renomear nota
   const handleRenameNoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingNote && noteNewTitle.trim()) {
-      await renameNote(editingNote.id, noteNewTitle.trim());
-      setEditingNote(null);
+      try {
+        await renameNote(editingNote.id, noteNewTitle.trim());
+        setEditingNote(null);
+      } catch (err) {
+        // Toast já mostrado pelo contexto; o diálogo continua aberto para nova tentativa
+        console.error("Erro ao renomear nota:", err);
+      }
     }
   };
 
