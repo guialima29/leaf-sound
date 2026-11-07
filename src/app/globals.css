@@ -6,10 +6,6 @@
   font-family: var(--font-libre-caslon-text), serif;
 }
 
-.font-poppins {
-  font-family: var(--font-poppins);
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

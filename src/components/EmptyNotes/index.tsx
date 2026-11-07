@@ -24,7 +24,7 @@ export default function EmptyNotes({onCreateNote}: EmptyNotesProps) {
                 <EmptyDescription>Não há anotações dentro dessa workspace.</EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-                <Button onClick={onCreateNote} className="bg-primary hover:bg-primary-hover hover:scale-102">Criar Anotação</Button>
+                <Button onClick={onCreateNote} className="hover:scale-102">Criar Anotação</Button>
             </EmptyContent>
         </Empty>
     )

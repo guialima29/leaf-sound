@@ -1,4 +1,4 @@
-import { QueryProvider } from "@/providers/query-provider";
+import { AppProviders } from "@/providers/app-providers";
 import "@/app/editor/editor-styles.css"
 import "./globals.css";
 import { libreCaslonText, poppins } from "@/fonts/fonts";
@@ -18,9 +18,9 @@ export default function RootLayout({
 			<body suppressHydrationWarning
 				className="antialiased"
 			>
-				<QueryProvider>
+				<AppProviders>
 					{children}
-				</QueryProvider>
+				</AppProviders>
 			</body>
 		</html>
 	);

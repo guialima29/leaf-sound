@@ -5,7 +5,7 @@
 
 ## Ordem e dependências
 
-> **Status em 2026-11-03:** T01–T07 concluídas na branch `fix/backlog-correcoes`. O que foi feito, as decisões tomadas e as **pendências extras de T08–T11** estão em [`PROGRESSO.md`](PROGRESSO.md). Leia esse arquivo antes de executar as tarefas restantes.
+> **Status em 2026-11-07:** **backlog concluído (T01–T11).** T01–T07 mergeadas na `main` (PR #1). T08–T11 na branch `fix/backlog-correcoes` (PR #2 com T08–T11, aberto, aguardando merge). O que foi feito, as decisões tomadas e as pendências que sobraram estão em [`PROGRESSO.md`](PROGRESSO.md).
 
 | # | Tarefa | Tipo | Tamanho | Depende de | Status |
 |---|---|---|---|---|---|
@@ -16,10 +16,10 @@
 | T05 | Acordes: corrigir o dicionário e avisar quando o acorde é desconhecido | bug | M | — | ✅ |
 | T06 | Fontes e paleta verde do DESIGN.md | visual | M | — | ✅ |
 | T07 | Favoritos (NOTE-04) | feature | M | T03 | ✅ |
-| T08 | Remover código e dependências não usados | limpeza | P | T03, T07 | ⏳ |
-| T09 | Headers de segurança + `middleware` → `proxy` | segurança | P | — | ⏳ |
-| T10 | API: erros visíveis em vez de fallback silencioso + contrato documentado | arquitetura | M | T03 | ⏳ |
-| T11 | Sincronizar os documentos do GSD com o código | docs | P | todas | ⏳ |
+| T08 | Remover código e dependências não usados | limpeza | P | T03, T07 | ✅ |
+| T09 | Headers de segurança + `middleware` → `proxy` | segurança | P | — | ✅ |
+| T10 | API: erros visíveis em vez de fallback silencioso + contrato documentado | arquitetura | M | T03 | ✅ |
+| T11 | Sincronizar os documentos do GSD com o código | docs | P | todas | ✅ (continua no GSD) |
 
 Tamanho: P = até ~1h, M = algumas horas, G = meio dia ou mais.
 
@@ -278,7 +278,7 @@ B7: [[1,2],[2,0],[3,2],[4,1],[5,2],[6,"x"]],   // x21202
 
 1. **T06:** verde só nas ações, ou também na sidebar?
 2. **T08:** manter o `RegisterArea`?
-3. **T11:** continuar com o GSD ou congelar o `.planning/`?
+3. **T11 (decidido por mim, pode mudar):** continuar com o GSD. O `.planning/` foi sincronizado; para congelá-lo é só marcá-lo como "histórico".
 4. **T05 (opcional):** adotar um banco de acordes pronto como dependência?
 
 ## Decisões que tomei (confira)

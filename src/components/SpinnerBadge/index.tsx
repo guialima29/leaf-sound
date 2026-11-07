@@ -1,3 +1,4 @@
+import { AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -5,12 +6,20 @@ import { cn } from "@/lib/utils"
 export function SpinnerBadge({
     isSaving,
     lastSaved,
+    hasError = false,
+    onRetry,
     className,
 }: {
     isSaving: boolean
     lastSaved?: Date | null
+    /** Falha ao salvar: o conteúdo continua pendente e será reenviado na próxima tentativa. */
+    hasError?: boolean
+    /** Quando informado, o estado de erro vira um botão "Tentar novamente". */
+    onRetry?: () => void
     className?: string
 }) {
+    const showError = hasError && !isSaving
+
     return (
         <div className={cn("flex flex-col items-center justify-center gap-1 mb-8 [--radius:1.2rem]", className)}>
             <div className="flex items-center justify-center gap-4">
@@ -18,6 +27,21 @@ export function SpinnerBadge({
                     <Badge variant="secondary">
                         <Spinner />
                         Editando...
+                    </Badge>
+                ) : showError ? (
+                    <Badge variant="destructive" asChild={!!onRetry}>
+                        {onRetry ? (
+                            <button type="button" onClick={onRetry} title="Tentar salvar novamente" className="cursor-pointer">
+                                <AlertTriangle />
+                                Erro ao salvar
+                                <span className="underline">Tentar novamente</span>
+                            </button>
+                        ) : (
+                            <>
+                                <AlertTriangle />
+                                Erro ao salvar
+                            </>
+                        )}
                     </Badge>
                 ) : (
                     <Badge variant="secondary">
