@@ -38,7 +38,7 @@ export default function NoteCard({
     return (
         <Card className="w-[300px] h-[360px] relative" key={idx}>
             <CardHeader>
-                <Image src="/note-img.png" alt="" width={300} height={200} />
+                <Image src="/note-img.png" alt="" width={300} height={132} />
             </CardHeader>
             <CardContent className="space-y-2">
                 <CardTitle className="text-lg font-semibold line-clamp-1 flex items-center gap-1.5">

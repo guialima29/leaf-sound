@@ -6,7 +6,7 @@ export default function LoginArea() {
         <div className="flex items-center justify-center flex-col min-h-screen">
             <div className="gap-10 flex items-center flex-col justify-center mb-20">
                 <div className="flex flex-row items-center justify-center gap-4">
-                    <Image src={'/lf-logo.svg'} alt="LeafSound" width={45} height={100} />
+                    <Image src={'/lf-logo.svg'} alt="LeafSound" width={45} height={104} />
                     <h1 className="font-bold font-libre-caslon text-[56px] text-foreground">Faça seu Login</h1>
                 </div>
                 <div>

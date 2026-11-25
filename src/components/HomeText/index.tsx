@@ -13,7 +13,7 @@ export default function HomeText() {
                     e seja mais produtivo
                 </h1>
                 <div className="max-w-570px flex flex-row items-center gap-6">
-                    <Image src={'/home/lf-logo-violao.png'} alt="LeafSound Logo Violão" width={60} height={105} />
+                    <Image src={'/home/lf-logo-violao.png'} alt="LeafSound Logo Violão" width={60} height={96} />
                     <h3 className="text-xl">Desbloqueia a sua imaginação com um<br />bloco de notas interativo para músicos,<br />compositores e criativos.</h3>
                 </div>
                 <Button asChild className="hover:scale-105 font-[500] w-45 h-13 text-xl text-center drop-shadow-lg/25">
